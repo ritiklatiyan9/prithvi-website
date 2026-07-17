@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { SubmissionStatus } from "../lib/api";
+import { lastExchangeError } from "../lib/auth";
 import { isEmbedded, requestSession } from "../lib/bridge";
 
 /** Tiny coin glyph — the ONLY place coin gold appears (app rule). */
@@ -41,11 +42,15 @@ export const AppPrompt = (): JSX.Element => {
   // keep nudging until the session lands (the page re-renders signed-in via
   // useAuth the moment the exchange completes, unmounting this gate).
   const embedded = isEmbedded();
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!embedded) return;
     requestSession();
-    const timer = setInterval(requestSession, 3000);
+    const timer = setInterval(() => {
+      requestSession();
+      setTick((t) => t + 1); // re-render so the diagnostic line updates
+    }, 3000);
     return () => clearInterval(timer);
   }, [embedded]);
 
@@ -62,6 +67,13 @@ export const AppPrompt = (): JSX.Element => {
           ? "One moment — signing you back in. If this doesn't finish, go back and reopen this screen."
           : "Proof uploads and your submission history need your account. Tap the offers link inside the RewardHub app — your session carries over automatically."}
       </p>
+      {embedded && (
+        <p className="mt-3 text-xs text-ink-soft/70">
+          {lastExchangeError
+            ? `Sign-in error: ${lastExchangeError} (attempt ${tick + 1})`
+            : `Waiting for the app… (attempt ${tick + 1})`}
+        </p>
+      )}
       <Link to="/" className="btn-ghost mt-6 px-6 py-2.5 text-sm">
         Browse offers
       </Link>

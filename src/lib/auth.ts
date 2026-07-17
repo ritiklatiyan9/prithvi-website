@@ -63,6 +63,10 @@ export const useAuth = (): AuthSession | null => useSyncExternalStore(subscribe,
  * exchange the code for the standard JWT pair and strip it from the URL
  * (leaving ?category= intact). Failure is silent — anonymous browsing works.
  */
+/** Last exchange failure — surfaced by the embedded auth gate so a stuck
+ *  "Restoring your session" names its own cause on screen. */
+export let lastExchangeError: string | null = null;
+
 export const exchangeCode = async (code: string): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE}/auth/web-exchange`, {
@@ -71,9 +75,16 @@ export const exchangeCode = async (code: string): Promise<void> => {
       body: JSON.stringify({ code }),
     });
     const body = (await response.json()) as { success: boolean; data?: AuthSession };
-    if (response.ok && body.success && body.data) save(body.data);
-  } catch {
-    /* stay anonymous */
+    if (response.ok && body.success && body.data) {
+      lastExchangeError = null;
+      save(body.data);
+    } else {
+      lastExchangeError = `exchange HTTP ${response.status}`;
+      console.error("[rh] web-exchange rejected", response.status, JSON.stringify(body).slice(0, 200));
+    }
+  } catch (error) {
+    lastExchangeError = `network: ${String(error).slice(0, 120)}`;
+    console.error("[rh] web-exchange network error", error);
   }
 };
 
