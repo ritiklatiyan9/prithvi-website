@@ -111,12 +111,30 @@ declare global {
   interface Window {
     __rhExchangeCode?: (code: string) => void;
     __rhHasSession?: () => boolean;
+    __rhSetSession?: (sessionJson: string) => void;
   }
 }
 
 if (typeof window !== "undefined") {
   window.__rhExchangeCode = (code) => void exchangeCode(code);
   window.__rhHasSession = () => session != null;
+  // Direct hand-off: the app injects the full token pair it obtained from
+  // POST /auth/web-session — no fetch happens inside the WebView, so there
+  // is nothing network-ish left to fail on this side.
+  window.__rhSetSession = (sessionJson) => {
+    try {
+      const next = JSON.parse(sessionJson) as AuthSession;
+      if (next && next.accessToken && next.refreshToken) {
+        lastExchangeError = null;
+        save(next);
+      } else {
+        lastExchangeError = "inject: payload missing tokens";
+      }
+    } catch (error) {
+      lastExchangeError = `inject: ${String(error).slice(0, 80)}`;
+      console.error("[rh] session inject failed", error);
+    }
+  };
 }
 
 // ---- single-flight refresh ----
