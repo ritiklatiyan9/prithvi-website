@@ -43,7 +43,6 @@ export const parsePackageId = (playStoreUrl: string): string | null => {
   }
 };
 
-<<<<<<< HEAD
 /** Ask the app to re-run the session handover (mint + inject a fresh code).
  *  Fired by the auth gate when an embedded visitor lands without a session —
  *  closes the gap where the app's page-load handshake timed out and SPA
@@ -54,8 +53,6 @@ export const requestSession = (): boolean => {
   return true;
 };
 
-=======
->>>>>>> origin/main
 /** Ask the app to open the Play Store natively. Returns false when no bridge is present. */
 export const openStore = (msg: {
   offerId: string;

@@ -1,13 +1,7 @@
-<<<<<<< HEAD
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import type { SubmissionStatus } from "../lib/api";
 import { isEmbedded, requestSession } from "../lib/bridge";
-=======
-import { Link } from "react-router-dom";
-import type { SubmissionStatus } from "../lib/api";
-import { isEmbedded } from "../lib/bridge";
->>>>>>> origin/main
 
 /** Tiny coin glyph — the ONLY place coin gold appears (app rule). */
 export const CoinIcon = ({ size = 16 }: { size?: number }): JSX.Element => (
@@ -43,7 +37,6 @@ export const StatusChip = ({ status }: { status: SubmissionStatus }): JSX.Elemen
 
 /** Shown when a signed-out visitor hits an auth-only page. */
 export const AppPrompt = (): JSX.Element => {
-<<<<<<< HEAD
   // Embedded: already inside the app — ask it to re-run the code handover and
   // keep nudging until the session lands (the page re-renders signed-in via
   // useAuth the moment the exchange completes, unmounting this gate).
@@ -56,30 +49,17 @@ export const AppPrompt = (): JSX.Element => {
     return () => clearInterval(timer);
   }, [embedded]);
 
-=======
-  // Embedded: already inside the app, so no "open the app" pitch — the session
-  // just didn't carry over; reopening the screen re-runs the code handover.
-  const embedded = isEmbedded();
->>>>>>> origin/main
   return (
     <div className="glass-card mx-auto mt-10 max-w-sm p-8 text-center animate-float-up">
       <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-hairline bg-surface-alt text-accent">
         <FlameIcon />
       </span>
       <p className="mt-4 font-display text-lg font-bold">
-<<<<<<< HEAD
         {embedded ? "Restoring your session…" : "Open this from the RewardHub app"}
       </p>
       <p className="mt-2 text-sm leading-relaxed text-ink-soft">
         {embedded
           ? "One moment — signing you back in. If this doesn't finish, go back and reopen this screen."
-=======
-        {embedded ? "Session didn't carry over" : "Open this from the RewardHub app"}
-      </p>
-      <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-        {embedded
-          ? "Go back and reopen this screen to sign in again."
->>>>>>> origin/main
           : "Proof uploads and your submission history need your account. Tap the offers link inside the RewardHub app — your session carries over automatically."}
       </p>
       <Link to="/" className="btn-ghost mt-6 px-6 py-2.5 text-sm">
