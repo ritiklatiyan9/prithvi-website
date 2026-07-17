@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    /* App body text: Chakra Petch w500 on the graphite falloff. */
+    @apply font-display font-medium text-ink antialiased;
+    background: linear-gradient(180deg, #10151f 0%, #0a0e17 100%) fixed #0a0e17;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* Card v4: 22px glass + hairline border (GlowCard). */
+  .glass-card {
+    @apply rounded-card border border-hairline bg-surface/85 backdrop-blur;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+  /* The ONE gradient: accent pill CTA with near-black-green ink + soft glow. */
+  .btn-accent {
+    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-deep font-display font-semibold text-onaccent shadow-glow transition-transform active:scale-[0.97] disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-hairline bg-surface-alt font-display font-semibold text-ink transition-transform active:scale-[0.97] disabled:opacity-50;
+  }
+  .field {
+    @apply w-full rounded-2xl border border-hairline bg-surface-alt px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent;
+  }
+}
+
+@keyframes float-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float-up {
+  animation: float-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -400px 0;
+  }
+  to {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton {
+  @apply rounded-card border border-hairline bg-surface;
+  background-image: linear-gradient(90deg, transparent, rgba(5, 255, 8, 0.08), transparent);
+  background-size: 400px 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.4s infinite;
+}

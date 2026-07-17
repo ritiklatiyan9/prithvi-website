@@ -1,0 +1,23 @@
+{
+  "rewrites": [
+    {
+<<<<<<< HEAD
+      "source": "/api/:path*",
+      "destination": "https://prithivi-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://prithivi-backend.onrender.com/uploads/:path*"
+    },
+    { "source": "/((?!api|uploads|assets|favicon).*)", "destination": "/index.html" }
+=======
+      "source": "/api/v1/:path*",
+      "destination": "https://prithivi-backend.onrender.com/api/v1/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+>>>>>>> origin/main
+  ]
+}
