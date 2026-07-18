@@ -1,5 +1,6 @@
 /**
- * WebView bridge to the RewardHub app (contract: RewardHubBridge / __rhInstallResult).
+ * WebView bridge to the Money Marathon app. Native channel names stay stable
+ * for compatibility with already-installed builds.
  * The app loads the site with &embedded=1 and injects window.RewardHubBridge.
  */
 
@@ -65,7 +66,7 @@ export const openStore = (msg: {
   return true;
 };
 
-/** Wire the app's install-result callback; returns an unsubscribe. Single subscriber (the offer page). */
+/** Wire the app's Play Store hand-off callback; returns an unsubscribe. */
 export const onInstallResult = (cb: (result: InstallResult) => void): (() => void) => {
   window.__rhInstallResult = cb;
   return () => {

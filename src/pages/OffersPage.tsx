@@ -34,7 +34,7 @@ export const OffersPage = (): JSX.Element => {
   };
 
   useEffect(() => {
-    document.title = "RewardHub Offers — Earn real rewards for trying apps";
+    document.title = "Reward Zone — Money Marathon";
     void api.categories().then(setCategories).catch(() => undefined);
   }, []);
 
@@ -94,7 +94,7 @@ export const OffersPage = (): JSX.Element => {
       <header className="pb-4 pt-6">
         <h1 className="font-display text-[28px] font-bold tracking-tight">Hot Offers</h1>
         <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-          Install an app, finish the task, upload proof — the coins land in your RewardHub
+          Complete an eligible task and upload proof — approved coins land in your Money Marathon
           wallet.
         </p>
       </header>

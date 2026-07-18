@@ -3,18 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RewardHub Offers — Earn real rewards for trying apps</title>
+    <title>Money Marathon — Play, Complete Offers & Earn Rewards</title>
     <meta
       name="description"
-      content="Try hand-picked apps, complete simple tasks and earn real rewards. Fresh offers added every week."
+      content="Money Marathon brings live app offers, clear tasks, proof-based coin rewards, Tic Tac Toe and a focused Reward Zone."
     />
-    <meta property="og:title" content="RewardHub Offers" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="canonical" href="https://www.moneymarathon.in/" />
+    <meta property="og:title" content="Money Marathon" />
     <meta
       property="og:description"
-      content="Try hand-picked apps, complete simple tasks and earn real rewards."
+      content="Play, complete eligible app offers and submit proof to collect approved coin rewards."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.moneymarathon.in/" />
+    <meta property="og:site_name" content="Money Marathon" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Money Marathon" />
+    <meta name="twitter:description" content="Play, complete eligible offers and collect approved coin rewards." />
     <meta name="theme-color" content="#0A0E17" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -23,8 +31,39 @@
     />
     <link
       rel="icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>"
+      href="/favicon.svg"
     />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://www.moneymarathon.in/#organization",
+            "name": "Money Marathon",
+            "url": "https://www.moneymarathon.in/",
+            "email": "puniaprathvi860@gmail.com"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://www.moneymarathon.in/#website",
+            "name": "Money Marathon",
+            "url": "https://www.moneymarathon.in/",
+            "publisher": { "@id": "https://www.moneymarathon.in/#organization" }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Money Marathon",
+            "operatingSystem": "Android",
+            "applicationCategory": "EntertainmentApplication",
+            "description": "An Android rewards experience with casual play, live app offers and proof-based coin rewards.",
+            "url": "https://www.moneymarathon.in/",
+            "publisher": { "@id": "https://www.moneymarathon.in/#organization" },
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

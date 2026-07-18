@@ -60,12 +60,12 @@ export const AppPrompt = (): JSX.Element => {
         <FlameIcon />
       </span>
       <p className="mt-4 font-display text-lg font-bold">
-        {embedded ? "Restoring your session…" : "Open this from the RewardHub app"}
+        {embedded ? "Restoring your session…" : "Open this from the Money Marathon app"}
       </p>
       <p className="mt-2 text-sm leading-relaxed text-ink-soft">
         {embedded
           ? "One moment — signing you back in. If this doesn't finish, go back and reopen this screen."
-          : "Proof uploads and your submission history need your account. Tap the offers link inside the RewardHub app — your session carries over automatically."}
+          : "Proof uploads and your submission history need your account. Tap the offers link inside the Money Marathon app — your session carries over automatically."}
       </p>
       {embedded && (
         <p className="mt-3 text-xs text-ink-soft/70">
@@ -74,7 +74,7 @@ export const AppPrompt = (): JSX.Element => {
             : `Waiting for the app… (attempt ${tick + 1})`}
         </p>
       )}
-      <Link to="/" className="btn-ghost mt-6 px-6 py-2.5 text-sm">
+      <Link to="/rewards" className="btn-ghost mt-6 px-6 py-2.5 text-sm">
         Browse offers
       </Link>
     </div>

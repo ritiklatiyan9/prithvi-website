@@ -9,7 +9,7 @@ import { isEmbedded, onInstallResult, openStore, parsePackageId } from "../lib/b
 const RESUBMITTABLE = new Set(["REJECTED", "NEED_MORE_PROOF", "CANCELLED"]);
 
 /** Download CTA states in embedded mode; non-embedded stays "idle" forever. */
-type InstallState = "idle" | "waiting" | "installed" | "retry";
+type InstallState = "idle" | "waiting" | "storeOpened";
 
 export const OfferDetailsPage = (): JSX.Element => {
   const { slug } = useParams<{ slug: string }>();
@@ -31,7 +31,7 @@ export const OfferDetailsPage = (): JSX.Element => {
       .offer(slug)
       .then((data) => {
         setOffer(data);
-        document.title = `${data.title} — RewardHub Offers`;
+        document.title = `${data.title} — Money Marathon Rewards`;
         api.track("VIEW", { offerId: data.id });
       })
       .catch((err: unknown) =>
@@ -76,7 +76,7 @@ export const OfferDetailsPage = (): JSX.Element => {
     return onInstallResult((result) => {
       if (result.offerId !== offer.id) return;
       refetchSubmission();
-      setInstall(result.installed ? "installed" : "retry");
+      setInstall(result.installed ? "storeOpened" : "idle");
       if (result.installed) {
         // Reveal the proof uploader once the card is on screen.
         setTimeout(
@@ -107,7 +107,7 @@ export const OfferDetailsPage = (): JSX.Element => {
       <div className="mx-auto max-w-sm px-4 py-24 text-center">
         <p className="font-display text-lg font-bold">This offer has moved on</p>
         <p className="mt-1 text-sm text-ink-soft">{error}</p>
-        <Link to="/" className="btn-accent mt-6 inline-flex px-6 py-2.5 text-sm">
+        <Link to="/rewards" className="btn-accent mt-6 inline-flex px-6 py-2.5 text-sm">
           Browse live offers
         </Link>
       </div>
@@ -128,7 +128,7 @@ export const OfferDetailsPage = (): JSX.Element => {
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-32 pt-4">
-      <Link to="/" className="text-sm font-semibold text-ink-soft">
+      <Link to="/rewards" className="text-sm font-semibold text-ink-soft">
         ← All offers
       </Link>
 
@@ -225,7 +225,7 @@ export const OfferDetailsPage = (): JSX.Element => {
       ) : embedded ? null : (
         // "Open in app" prompt — pointless inside the app's own webview.
         <div className="glass-card mt-4 p-4 text-xs leading-relaxed text-ink-soft animate-float-up">
-          Complete the task, then open this page from the RewardHub app to upload proof and
+          Complete the task, then open this page from the Money Marathon app to upload proof and
           claim the reward.
         </div>
       )}
@@ -346,14 +346,14 @@ export const OfferDetailsPage = (): JSX.Element => {
                   />
                   WAITING FOR INSTALL...
                 </div>
-              ) : install === "installed" ? (
+              ) : install === "storeOpened" ? (
                 // Direct action: go to the uploader. Scrolling to proofRef broke
                 // when the proof card wasn't rendered (no session -> null ref).
                 <Link
                   to={`/submit/${offer.slug}`}
                   className="btn-accent block w-full py-3.5 text-center text-sm tracking-wide"
                 >
-                  INSTALLED — UPLOAD YOUR PROOF
+                  UPLOAD YOUR PROOF
                 </Link>
               ) : (
                 <button onClick={download} className="btn-accent w-full py-3.5 text-sm tracking-wide">
@@ -362,12 +362,10 @@ export const OfferDetailsPage = (): JSX.Element => {
               )}
               <p className="mt-1.5 text-center text-[11px] text-ink-muted">
                 {install === "waiting"
-                  ? "Finish the install in the Play Store, then come back here"
-                  : install === "installed"
-                    ? "Take a screenshot of the completed task as your proof"
-                    : install === "retry"
-                      ? "We couldn't spot the app yet — install it, then tap Download again"
-                      : "Opens the official Play Store listing"}
+                  ? "Opening the official Play Store listing…"
+                  : install === "storeOpened"
+                    ? "Complete the stated task, then submit a clear screenshot"
+                    : "Opens the official Play Store listing"}
               </p>
             </>
           )}

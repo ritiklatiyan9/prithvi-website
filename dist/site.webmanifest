@@ -1,0 +1,12 @@
+{
+  "name": "Money Marathon",
+  "short_name": "Money Marathon",
+  "description": "Play, complete eligible offers and collect approved coin rewards.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0E17",
+  "theme_color": "#0A0E17",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

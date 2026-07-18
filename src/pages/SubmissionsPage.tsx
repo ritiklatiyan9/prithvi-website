@@ -95,7 +95,7 @@ export const SubmissionsPage = (): JSX.Element => {
   };
 
   useEffect(() => {
-    document.title = "My proofs — RewardHub Offers";
+    document.title = "My proofs — Money Marathon";
     if (auth) load(1);
   }, [auth]);
 

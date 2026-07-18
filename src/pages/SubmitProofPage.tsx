@@ -33,7 +33,7 @@ export const SubmitProofPage = (): JSX.Element => {
 
   useEffect(() => {
     if (!slug) return;
-    document.title = "Upload proof — RewardHub Offers";
+    document.title = "Upload proof — Money Marathon";
     api.offer(slug).then(setOffer).catch(() => setError("Offer not found"));
   }, [slug]);
 

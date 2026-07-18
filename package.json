@@ -1,8 +1,8 @@
 {
-  "name": "@rewardhub/web",
+  "name": "@money-marathon/web",
   "version": "0.1.0",
   "private": true,
-  "description": "RewardHub public offers website (Vite + React + Tailwind)",
+  "description": "Money Marathon website and live rewards experience",
   "type": "module",
   "scripts": {
     "dev": "vite",
