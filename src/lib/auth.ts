@@ -47,6 +47,8 @@ const save = (next: AuthSession | null): void => {
 
 export const getSession = (): AuthSession | null => session;
 export const clearSession = (): void => save(null);
+/** Standalone Google sign-in feeds its JWT pair into the one store via save(). */
+export const setSession = (next: AuthSession): void => save(next);
 
 const subscribe = (listener: () => void): (() => void) => {
   listeners.add(listener);

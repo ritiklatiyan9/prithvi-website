@@ -1,6 +1,8 @@
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
-import { FlameIcon } from "./components/ui";
+import { FlameIcon, GoogleSignInButton } from "./components/ui";
 import { useAuth } from "./lib/auth";
+import { isEmbedded } from "./lib/bridge";
+import { signOutWeb } from "./lib/firebase";
 import { LandingPage } from "./pages/LandingPage";
 import { OfferDetailsPage } from "./pages/OfferDetailsPage";
 import { OffersPage } from "./pages/OffersPage";
@@ -35,6 +37,24 @@ const Header = (): JSX.Element => {
           My proofs
           {auth && <span className="h-1.5 w-1.5 rounded-full bg-accent" />}
         </Link>
+        {/* Standalone browser only — the embedded app WebView is left untouched. */}
+        {!isEmbedded() &&
+          (auth ? (
+            <div className="ml-3 flex items-center gap-2">
+              <span className="hidden max-w-[9rem] truncate text-xs font-semibold text-ink-soft sm:inline">
+                {auth.user.name}
+              </span>
+              <button
+                type="button"
+                onClick={signOutWeb}
+                className="btn-ghost px-3.5 py-2 text-xs"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <GoogleSignInButton className="btn-ghost ml-3 px-3.5 py-2 text-xs" label="Sign in" />
+          ))}
       </div>
     </header>
   );
