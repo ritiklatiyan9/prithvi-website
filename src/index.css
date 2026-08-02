@@ -4,9 +4,9 @@
 
 @layer base {
   body {
-    /* App body text: Chakra Petch w500 on the graphite falloff. */
+    /* App body text: Chakra Petch w500 on the Ludo-navy falloff. */
     @apply font-display font-medium text-ink antialiased;
-    background: linear-gradient(180deg, #10151f 0%, #0a0e17 100%) fixed #0a0e17;
+    background: linear-gradient(180deg, #0c2e61 0%, #071a3d 100%) fixed #071a3d;
     min-height: 100vh;
   }
 
@@ -15,7 +15,7 @@
   }
 
   ::selection {
-    background: rgba(5, 255, 8, 0.22);
+    background: rgba(103, 214, 255, 0.22);
     color: #f1f5f9;
   }
 }
@@ -45,7 +45,7 @@
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
   }
-  /* The ONE gradient: accent pill CTA with near-black-green ink + soft glow. */
+  /* The ONE gradient: cyan-to-blue CTA with deep navy ink + soft glow. */
   .btn-accent {
     @apply inline-flex items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-deep font-display font-semibold text-onaccent shadow-glow transition-transform active:scale-[0.97] disabled:opacity-50;
   }
@@ -54,6 +54,10 @@
   }
   .field {
     @apply w-full rounded-2xl border border-hairline bg-surface-alt px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent;
+  }
+  .offer-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 320px;
   }
 }
 
@@ -83,7 +87,7 @@
 
 .skeleton {
   @apply rounded-card border border-hairline bg-surface;
-  background-image: linear-gradient(90deg, transparent, rgba(5, 255, 8, 0.08), transparent);
+  background-image: linear-gradient(90deg, transparent, rgba(103, 214, 255, 0.08), transparent);
   background-size: 400px 100%;
   background-repeat: no-repeat;
   animation: shimmer 1.4s infinite;

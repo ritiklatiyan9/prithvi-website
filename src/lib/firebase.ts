@@ -1,6 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { API_BASE, clearSession, setSession, type AuthSession } from "./auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
+import { API_BASE, setSession, type AuthSession } from "./auth";
 
 // ponytail: public Firebase web config reused verbatim from prithvi-admin
 // (project rewardhub-99c60). Not a secret — it ships in the client bundle
@@ -28,7 +33,10 @@ export const signInWithGoogle = async (): Promise<boolean> => {
     idToken = await credential.user.getIdToken();
   } catch (error) {
     const code = (error as { code?: string })?.code;
-    if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
+    if (
+      code === "auth/popup-closed-by-user" ||
+      code === "auth/cancelled-popup-request"
+    ) {
       return false; // user backed out — not an error
     }
     throw new Error("Couldn't reach Google. Please try again.");
@@ -39,9 +47,10 @@ export const signInWithGoogle = async (): Promise<boolean> => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken }),
   });
-  const body = (await response.json().catch(() => null)) as
-    | { success?: boolean; data?: AuthSession }
-    | null;
+  const body = (await response.json().catch(() => null)) as {
+    success?: boolean;
+    data?: AuthSession;
+  } | null;
   if (!response.ok || !body?.success || !body.data) {
     throw new Error("Sign-in couldn't be completed. Please try again.");
   }
@@ -49,8 +58,7 @@ export const signInWithGoogle = async (): Promise<boolean> => {
   return true;
 };
 
-/** Clear our session and best-effort sign the Firebase user out. */
-export const signOutWeb = (): void => {
-  clearSession();
+/** Best-effort Firebase cleanup; the caller clears our local session first. */
+export const signOutFirebase = (): void => {
   void signOut(auth).catch(() => undefined);
 };

@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type PageMeta, type Submission } from "../lib/api";
 import { AppPrompt, CoinIcon, StatusChip } from "../components/ui";
 import { useAuth } from "../lib/auth";
 
-const Row = ({
+const SubmissionRow = ({
   submission,
   onCancelled,
 }: {
@@ -14,7 +14,8 @@ const Row = ({
   const [cancelling, setCancelling] = useState(false);
 
   const cancel = async (): Promise<void> => {
-    if (cancelling || !window.confirm("Cancel this pending submission?")) return;
+    if (cancelling || !window.confirm("Cancel this pending submission?"))
+      return;
     setCancelling(true);
     try {
       onCancelled(await api.cancelSubmission(submission.id));
@@ -63,7 +64,8 @@ const Row = ({
         )}
       </div>
       {submission.reviewNote &&
-        (submission.status === "REJECTED" || submission.status === "NEED_MORE_PROOF") && (
+        (submission.status === "REJECTED" ||
+          submission.status === "NEED_MORE_PROOF") && (
           <p className="mt-2.5 rounded-xl border border-hairline bg-surface-alt p-3 text-xs leading-relaxed text-ink-soft">
             Reviewer: {submission.reviewNote}
           </p>
@@ -72,12 +74,21 @@ const Row = ({
   );
 };
 
+const Row = memo(SubmissionRow);
+
 export const SubmissionsPage = (): JSX.Element => {
   const auth = useAuth();
   const [items, setItems] = useState<Submission[]>([]);
   const [meta, setMeta] = useState<PageMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const replace = useCallback(
+    (updated: Submission): void =>
+      setItems((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      ),
+    [],
+  );
 
   const load = (page: number): void => {
     setLoading(true);
@@ -85,11 +96,17 @@ export const SubmissionsPage = (): JSX.Element => {
     api
       .mySubmissions(page)
       .then((result) => {
-        setItems((current) => (page === 1 ? result.items : [...current, ...result.items]));
+        setItems((current) =>
+          page === 1 ? result.items : [...current, ...result.items],
+        );
         setMeta(result.meta);
       })
       .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : "Could not load your submissions"),
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not load your submissions",
+        ),
       )
       .finally(() => setLoading(false));
   };
@@ -100,9 +117,6 @@ export const SubmissionsPage = (): JSX.Element => {
   }, [auth]);
 
   if (!auth) return <AppPrompt />;
-
-  const replace = (updated: Submission): void =>
-    setItems((current) => current.map((item) => (item.id === updated.id ? updated : item)));
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-20 pt-4">
@@ -119,7 +133,10 @@ export const SubmissionsPage = (): JSX.Element => {
           <div className="glass-card p-8 text-center">
             <p className="font-display font-bold">Something went wrong</p>
             <p className="mt-1 text-sm text-ink-soft">{error}</p>
-            <button onClick={() => load(1)} className="btn-accent mt-5 px-6 py-2.5 text-sm">
+            <button
+              onClick={() => load(1)}
+              className="btn-accent mt-5 px-6 py-2.5 text-sm"
+            >
               Try again
             </button>
           </div>
@@ -129,20 +146,30 @@ export const SubmissionsPage = (): JSX.Element => {
             <p className="mt-1 text-sm text-ink-soft">
               Complete an offer and upload a screenshot to start earning.
             </p>
-            <Link to="/" className="btn-accent mt-5 inline-flex px-6 py-2.5 text-sm">
+            <Link
+              to="/"
+              className="btn-accent mt-5 inline-flex px-6 py-2.5 text-sm"
+            >
               Browse offers
             </Link>
           </div>
         ) : (
           items.map((submission) => (
-            <Row key={submission.id} submission={submission} onCancelled={replace} />
+            <Row
+              key={submission.id}
+              submission={submission}
+              onCancelled={replace}
+            />
           ))
         )}
         {loading && <div className="skeleton h-24" />}
       </div>
 
       {meta && meta.page < meta.totalPages && !loading && (
-        <button onClick={() => load(meta.page + 1)} className="btn-ghost mt-5 w-full py-3 text-sm">
+        <button
+          onClick={() => load(meta.page + 1)}
+          className="btn-ghost mt-5 w-full py-3 text-sm"
+        >
           Load more
         </button>
       )}

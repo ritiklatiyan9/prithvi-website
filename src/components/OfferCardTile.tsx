@@ -1,9 +1,10 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { api, type OfferCard } from "../lib/api";
 import { CoinIcon, FlameIcon } from "./ui";
 
 /** 2-col grid card: art (crop-safe), 2-line title, coin row, START pill. */
-export const OfferCardTile = ({
+const OfferCardTileComponent = ({
   offer,
   index,
 }: {
@@ -13,18 +14,21 @@ export const OfferCardTile = ({
   <Link
     to={`/offers/${offer.slug}`}
     onClick={() => api.track("CLICK", { offerId: offer.id })}
-    className={`glass-card group flex flex-col overflow-hidden animate-float-up ${
+    onPointerEnter={() => void api.offer(offer.slug).catch(() => undefined)}
+    onFocus={() => void api.offer(offer.slug).catch(() => undefined)}
+    className={`offer-card glass-card group flex flex-col overflow-hidden animate-float-up ${
       offer.featured ? "border-accent/40 shadow-glow-sm" : ""
     }`}
     style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
   >
     {/* Art — fixed ratio so any CMS image crops safely */}
     <div className="relative aspect-[4/3] overflow-hidden bg-surface-alt">
-      {offer.thumbnailUrl ?? offer.logoUrl ? (
+      {(offer.thumbnailUrl ?? offer.logoUrl) ? (
         <img
           src={offer.thumbnailUrl ?? offer.logoUrl ?? ""}
           alt=""
           loading="lazy"
+          decoding="async"
           className="h-full w-full object-cover transition-transform duration-300 group-active:scale-105"
         />
       ) : (
@@ -40,17 +44,27 @@ export const OfferCardTile = ({
     </div>
 
     <div className="flex flex-1 flex-col gap-2 p-3">
-      <h3 className="line-clamp-2 font-display text-sm font-bold leading-snug">{offer.title}</h3>
+      <h3 className="line-clamp-2 font-display text-sm font-bold leading-snug">
+        {offer.title}
+      </h3>
       <div className="flex items-center gap-1.5">
         <CoinIcon size={15} />
         <span className="font-numbers text-sm font-bold text-accent">
           +{offer.rewardLabel ?? offer.rewardAmount}
         </span>
         {offer.estimatedTime && (
-          <span className="ml-auto truncate text-[11px] text-ink-muted">{offer.estimatedTime}</span>
+          <span className="ml-auto truncate text-[11px] text-ink-muted">
+            {offer.estimatedTime}
+          </span>
         )}
       </div>
-      <span className="btn-accent mt-auto w-full py-2 text-xs tracking-wider">START</span>
+      <span className="btn-accent mt-auto w-full py-2 text-xs tracking-wider">
+        START
+      </span>
     </div>
   </Link>
 );
+
+// Existing offer objects remain referentially stable while the page toggles
+// loading/error state, so memo prevents every visible card reconciling again.
+export const OfferCardTile = memo(OfferCardTileComponent);

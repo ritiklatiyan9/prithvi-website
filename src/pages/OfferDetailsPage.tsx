@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, type OfferDetails, type Submission } from "../lib/api";
 import { CoinIcon, FlameIcon, StatusChip } from "../components/ui";
 import { useAuth } from "../lib/auth";
-import { isEmbedded, onInstallResult, openStore, parsePackageId } from "../lib/bridge";
+import {
+  isEmbedded,
+  onInstallResult,
+  openStore,
+  parsePackageId,
+} from "../lib/bridge";
 
 /** Statuses that allow submitting (again). */
 const RESUBMITTABLE = new Set(["REJECTED", "NEED_MORE_PROOF", "CANCELLED"]);
@@ -14,15 +19,16 @@ type InstallState = "idle" | "waiting" | "storeOpened";
 export const OfferDetailsPage = (): JSX.Element => {
   const { slug } = useParams<{ slug: string }>();
   const auth = useAuth();
-  const embedded = isEmbedded();
+  const navigate = useNavigate();
+  const embedded = useMemo(isEmbedded, []);
   const [offer, setOffer] = useState<OfferDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [install, setInstall] = useState<InstallState>("idle");
-  const proofRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!slug) return;
+    let active = true;
     setOffer(null);
     setError(null);
     setSubmission(null);
@@ -30,13 +36,18 @@ export const OfferDetailsPage = (): JSX.Element => {
     api
       .offer(slug)
       .then((data) => {
+        if (!active) return;
         setOffer(data);
         document.title = `${data.title} — Money Marathon Rewards`;
         api.track("VIEW", { offerId: data.id });
       })
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : "Offer not found"),
-      );
+      .catch((err: unknown) => {
+        if (active)
+          setError(err instanceof Error ? err.message : "Offer not found");
+      });
+    return () => {
+      active = false;
+    };
   }, [slug]);
 
   // My submission status — only when the app handed a session over. Failed
@@ -44,7 +55,10 @@ export const OfferDetailsPage = (): JSX.Element => {
   // to Download on a flaky connection.
   const refetchSubmission = useCallback((): void => {
     if (!offer || !auth) return;
-    api.mySubmissionForOffer(offer.id).then(setSubmission).catch(() => undefined);
+    api
+      .mySubmissionForOffer(offer.id)
+      .then(setSubmission)
+      .catch(() => undefined);
   }, [offer, auth]);
 
   // Fetch on mount (also covers returning from /submit/:slug — route change
@@ -66,7 +80,9 @@ export const OfferDetailsPage = (): JSX.Element => {
   // Poll only while a review is pending so approval flips the bar unprompted.
   useEffect(() => {
     if (submission?.status !== "PENDING") return;
-    const timer = setInterval(refetchSubmission, 20_000);
+    const timer = setInterval(() => {
+      if (!document.hidden) refetchSubmission();
+    }, 20_000);
     return () => clearInterval(timer);
   }, [submission?.status, refetchSubmission]);
 
@@ -78,14 +94,13 @@ export const OfferDetailsPage = (): JSX.Element => {
       refetchSubmission();
       setInstall(result.installed ? "storeOpened" : "idle");
       if (result.installed) {
-        // Reveal the proof uploader once the card is on screen.
-        setTimeout(
-          () => proofRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }),
-          350,
-        );
+        // Native only reports a successful Play Store hand-off. Prepare the
+        // uploader immediately; it will be waiting when the user returns to
+        // this WebView from Google Play.
+        navigate(`/submit/${offer.slug}`);
       }
     });
-  }, [embedded, offer, refetchSubmission]);
+  }, [embedded, navigate, offer, refetchSubmission]);
 
   const download = (): void => {
     if (!offer) return;
@@ -93,7 +108,14 @@ export const OfferDetailsPage = (): JSX.Element => {
     const packageId = parsePackageId(offer.playStoreUrl);
     if (embedded && packageId) {
       // openStore is false when the bridge isn't injected — fall through to the redirect.
-      if (openStore({ offerId: offer.id, slug: offer.slug, packageId, url: offer.playStoreUrl })) {
+      if (
+        openStore({
+          offerId: offer.id,
+          slug: offer.slug,
+          packageId,
+          url: offer.playStoreUrl,
+        })
+      ) {
         setInstall("waiting");
         return;
       }
@@ -105,9 +127,14 @@ export const OfferDetailsPage = (): JSX.Element => {
   if (error) {
     return (
       <div className="mx-auto max-w-sm px-4 py-24 text-center">
-        <p className="font-display text-lg font-bold">This offer has moved on</p>
+        <p className="font-display text-lg font-bold">
+          This offer has moved on
+        </p>
         <p className="mt-1 text-sm text-ink-soft">{error}</p>
-        <Link to="/rewards" className="btn-accent mt-6 inline-flex px-6 py-2.5 text-sm">
+        <Link
+          to="/rewards"
+          className="btn-accent mt-6 inline-flex px-6 py-2.5 text-sm"
+        >
           Browse live offers
         </Link>
       </div>
@@ -134,7 +161,7 @@ export const OfferDetailsPage = (): JSX.Element => {
 
       {/* Hero art */}
       <div className="glass-card relative mt-3 h-44 overflow-hidden animate-float-up">
-        {offer.bannerUrl ?? offer.thumbnailUrl ? (
+        {(offer.bannerUrl ?? offer.thumbnailUrl) ? (
           <img
             src={offer.bannerUrl ?? offer.thumbnailUrl ?? ""}
             alt=""
@@ -158,10 +185,14 @@ export const OfferDetailsPage = (): JSX.Element => {
             />
           )}
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-lg font-bold leading-snug">{offer.title}</h1>
+            <h1 className="font-display text-lg font-bold leading-snug">
+              {offer.title}
+            </h1>
             <p className="truncate text-xs text-ink-soft">
               {offer.appName ?? offer.category.title}
-              {offer.rating != null && <span className="ml-2">★ {offer.rating.toFixed(1)}</span>}
+              {offer.rating != null && (
+                <span className="ml-2">★ {offer.rating.toFixed(1)}</span>
+              )}
             </p>
           </div>
         </div>
@@ -195,9 +226,11 @@ export const OfferDetailsPage = (): JSX.Element => {
 
       {/* Proof status / upload CTA */}
       {auth ? (
-        <div ref={proofRef} className="glass-card mt-4 p-4 animate-float-up">
+        <div className="glass-card mt-4 p-4 animate-float-up">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-display text-sm font-bold">Proof of completion</p>
+            <p className="font-display text-sm font-bold">
+              Proof of completion
+            </p>
             {submission && <StatusChip status={submission.status} />}
           </div>
           {submission?.reviewNote && (
@@ -206,7 +239,10 @@ export const OfferDetailsPage = (): JSX.Element => {
             </p>
           )}
           {canSubmit ? (
-            <Link to={`/submit/${offer.slug}`} className="btn-accent mt-3 w-full py-3 text-sm">
+            <Link
+              to={`/submit/${offer.slug}`}
+              className="btn-accent mt-3 w-full py-3 text-sm"
+            >
               {submission ? "Upload new proof" : "Upload proof"}
             </Link>
           ) : (
@@ -216,7 +252,10 @@ export const OfferDetailsPage = (): JSX.Element => {
                   ? "We're reviewing your screenshot — coins drop on approval."
                   : "You've been rewarded for this offer."}
               </p>
-              <Link to="/submissions" className="shrink-0 text-xs font-semibold text-accent">
+              <Link
+                to="/submissions"
+                className="shrink-0 text-xs font-semibold text-accent"
+              >
                 My proofs →
               </Link>
             </div>
@@ -225,15 +264,17 @@ export const OfferDetailsPage = (): JSX.Element => {
       ) : embedded ? null : (
         // "Open in app" prompt — pointless inside the app's own webview.
         <div className="glass-card mt-4 p-4 text-xs leading-relaxed text-ink-soft animate-float-up">
-          Complete the task, then open this page from the Money Marathon app to upload proof and
-          claim the reward.
+          Complete the task, then open this page from the Money Marathon app to
+          upload proof and claim the reward.
         </div>
       )}
 
       {/* Content */}
       <section className="mt-6 space-y-5">
         <div>
-          <h2 className="font-display text-sm font-bold text-accent">About this offer</h2>
+          <h2 className="font-display text-sm font-bold text-accent">
+            About this offer
+          </h2>
           <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-ink-soft">
             {offer.description}
           </p>
@@ -241,7 +282,9 @@ export const OfferDetailsPage = (): JSX.Element => {
 
         {offer.instructions.length > 0 && (
           <div className="glass-card p-4">
-            <h2 className="font-display text-sm font-bold">How to complete it</h2>
+            <h2 className="font-display text-sm font-bold">
+              How to complete it
+            </h2>
             <ol className="mt-3 space-y-3">
               {offer.instructions.map((step, index) => (
                 <li key={step} className="flex gap-3 text-sm text-ink-soft">
@@ -257,10 +300,15 @@ export const OfferDetailsPage = (): JSX.Element => {
 
         {offer.features.length > 0 && (
           <div className="glass-card p-4">
-            <h2 className="font-display text-sm font-bold">Why you'll love it</h2>
+            <h2 className="font-display text-sm font-bold">
+              Why you'll love it
+            </h2>
             <ul className="mt-3 space-y-2">
               {offer.features.map((feature) => (
-                <li key={feature} className="flex gap-2 text-sm leading-relaxed text-ink-soft">
+                <li
+                  key={feature}
+                  className="flex gap-2 text-sm leading-relaxed text-ink-soft"
+                >
                   <span className="text-accent">✓</span> {feature}
                 </li>
               ))}
@@ -273,7 +321,10 @@ export const OfferDetailsPage = (): JSX.Element => {
             <h2 className="font-display text-sm font-bold">Requirements</h2>
             <ul className="mt-3 space-y-2">
               {offer.requirements.map((requirement) => (
-                <li key={requirement} className="flex gap-2 text-sm leading-relaxed text-ink-muted">
+                <li
+                  key={requirement}
+                  className="flex gap-2 text-sm leading-relaxed text-ink-muted"
+                >
                   <span className="text-ink-soft">•</span> {requirement}
                 </li>
               ))}
@@ -292,7 +343,9 @@ export const OfferDetailsPage = (): JSX.Element => {
             <summary className="cursor-pointer font-display font-bold text-ink">
               Terms & conditions
             </summary>
-            <p className="mt-2 whitespace-pre-line leading-relaxed">{offer.terms}</p>
+            <p className="mt-2 whitespace-pre-line leading-relaxed">
+              {offer.terms}
+            </p>
           </details>
         )}
       </section>
@@ -307,7 +360,10 @@ export const OfferDetailsPage = (): JSX.Element => {
               <p className="text-sm leading-snug text-ink-soft">
                 Proof under review — coins drop on approval
               </p>
-              <Link to="/submissions" className="shrink-0 text-xs font-semibold text-accent">
+              <Link
+                to="/submissions"
+                className="shrink-0 text-xs font-semibold text-accent"
+              >
                 View my proofs →
               </Link>
             </div>
@@ -318,7 +374,8 @@ export const OfferDetailsPage = (): JSX.Element => {
               </span>
               <p className="text-sm font-semibold">Reward earned</p>
             </div>
-          ) : submission?.status === "REJECTED" || submission?.status === "NEED_MORE_PROOF" ? (
+          ) : submission?.status === "REJECTED" ||
+            submission?.status === "NEED_MORE_PROOF" ? (
             <>
               <Link
                 to={`/submit/${offer.slug}`}
@@ -344,11 +401,11 @@ export const OfferDetailsPage = (): JSX.Element => {
                     aria-hidden
                     className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-onaccent/30 border-t-onaccent"
                   />
-                  WAITING FOR INSTALL...
+                  OPENING GOOGLE PLAY...
                 </div>
               ) : install === "storeOpened" ? (
-                // Direct action: go to the uploader. Scrolling to proofRef broke
-                // when the proof card wasn't rendered (no session -> null ref).
+                // Direct action: go to the uploader. In-page scrolling is not
+                // reliable when the proof card has not rendered yet.
                 <Link
                   to={`/submit/${offer.slug}`}
                   className="btn-accent block w-full py-3.5 text-center text-sm tracking-wide"
@@ -356,7 +413,10 @@ export const OfferDetailsPage = (): JSX.Element => {
                   UPLOAD YOUR PROOF
                 </Link>
               ) : (
-                <button onClick={download} className="btn-accent w-full py-3.5 text-sm tracking-wide">
+                <button
+                  onClick={download}
+                  className="btn-accent w-full py-3.5 text-sm tracking-wide"
+                >
                   DOWNLOAD ON GOOGLE PLAY
                 </button>
               )}

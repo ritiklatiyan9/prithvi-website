@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { api, type OfferCard, type OfferCategory, type SortOption } from "../lib/api";
+import {
+  api,
+  type OfferCard,
+  type OfferCategory,
+  type SortOption,
+} from "../lib/api";
 import { OfferCardTile } from "../components/OfferCardTile";
 
 const SORTS: { value: SortOption; label: string }[] = [
@@ -22,10 +27,14 @@ export const OffersPage = (): JSX.Element => {
   const [debounced, setDebounced] = useState("");
   // Initial category comes from ?category=<slug> — the app's hand-over link is
   // <websiteUrl>?code=<code>&category=<slug> (code is stripped at boot).
-  const [category, setCategory] = useState<string | null>(searchParams.get("category"));
+  const [category, setCategory] = useState<string | null>(
+    searchParams.get("category"),
+  );
   const [sort, setSort] = useState<SortOption>("priority");
 
   const sentinel = useRef<HTMLDivElement>(null);
+  const generation = useRef(0);
+  const loadingPage = useRef<number | null>(null);
 
   // Keep the URL in sync so the filter is shareable and survives refresh.
   const selectCategory = (slug: string | null): void => {
@@ -35,7 +44,10 @@ export const OffersPage = (): JSX.Element => {
 
   useEffect(() => {
     document.title = "Reward Zone — Money Marathon";
-    void api.categories().then(setCategories).catch(() => undefined);
+    void api
+      .categories()
+      .then(setCategories)
+      .catch(() => undefined);
   }, []);
 
   // Debounce search input
@@ -45,7 +57,15 @@ export const OffersPage = (): JSX.Element => {
   }, [search]);
 
   const loadPage = useCallback(
-    async (pageToLoad: number, replace: boolean): Promise<void> => {
+    async (
+      pageToLoad: number,
+      replace: boolean,
+      requestGeneration = generation.current,
+    ): Promise<void> => {
+      // IntersectionObserver can fire several times before React commits the
+      // loading state. The ref closes that duplicate-request window.
+      if (!replace && loadingPage.current !== null) return;
+      loadingPage.current = pageToLoad;
       setLoading(true);
       setError(null);
       try {
@@ -55,13 +75,22 @@ export const OffersPage = (): JSX.Element => {
           category: category ?? undefined,
           sort,
         });
-        setOffers((current) => (replace ? result.items : [...current, ...result.items]));
+        // A slower response for an old filter must never overwrite the newest
+        // search/category selection.
+        if (requestGeneration !== generation.current) return;
+        setOffers((current) =>
+          replace ? result.items : [...current, ...result.items],
+        );
         setHasMore(pageToLoad < result.meta.totalPages);
         setPage(pageToLoad);
       } catch (err) {
+        if (requestGeneration !== generation.current) return;
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
-        setLoading(false);
+        if (requestGeneration === generation.current) {
+          loadingPage.current = null;
+          setLoading(false);
+        }
       }
     },
     [debounced, category, sort],
@@ -69,7 +98,12 @@ export const OffersPage = (): JSX.Element => {
 
   // Reload from page 1 whenever filters change.
   useEffect(() => {
-    void loadPage(1, true);
+    const nextGeneration = generation.current + 1;
+    generation.current = nextGeneration;
+    loadingPage.current = null;
+    setOffers([]);
+    setHasMore(true);
+    void loadPage(1, true, nextGeneration);
   }, [loadPage]);
 
   // Infinite scroll
@@ -92,10 +126,12 @@ export const OffersPage = (): JSX.Element => {
     <div className="mx-auto w-full max-w-lg px-4 pb-20">
       {/* Heading — app's Hot Offers screen tone */}
       <header className="pb-4 pt-6">
-        <h1 className="font-display text-[28px] font-bold tracking-tight">Hot Offers</h1>
+        <h1 className="font-display text-[28px] font-bold tracking-tight">
+          Hot Offers
+        </h1>
         <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-          Complete an eligible task and upload proof — approved coins land in your Money Marathon
-          wallet.
+          Complete an eligible task and upload proof — approved coins land in
+          your Money Marathon wallet.
         </p>
       </header>
 
@@ -122,7 +158,9 @@ export const OffersPage = (): JSX.Element => {
             {categories.map((item) => (
               <button
                 key={item.id}
-                onClick={() => selectCategory(category === item.slug ? null : item.slug)}
+                onClick={() =>
+                  selectCategory(category === item.slug ? null : item.slug)
+                }
                 className={`chip shrink-0 border transition-colors ${
                   category === item.slug
                     ? "border-accent/60 bg-accent/10 text-accent"
@@ -152,7 +190,10 @@ export const OffersPage = (): JSX.Element => {
         <div className="glass-card mx-auto mt-6 max-w-sm p-8 text-center">
           <p className="font-display font-bold">Connection interrupted</p>
           <p className="mt-1 text-sm text-ink-soft">{error}</p>
-          <button onClick={() => void loadPage(1, true)} className="btn-accent mt-5 px-6 py-2.5 text-sm">
+          <button
+            onClick={() => void loadPage(1, true)}
+            className="btn-accent mt-5 px-6 py-2.5 text-sm"
+          >
             Try again
           </button>
         </div>
@@ -169,9 +210,11 @@ export const OffersPage = (): JSX.Element => {
             <OfferCardTile key={offer.id} offer={offer} index={index} />
           ))}
           {loading &&
-            Array.from({ length: offers.length === 0 ? 6 : 2 }).map((_, index) => (
-              <div key={`skeleton-${index}`} className="skeleton h-64" />
-            ))}
+            Array.from({ length: offers.length === 0 ? 6 : 2 }).map(
+              (_, index) => (
+                <div key={`skeleton-${index}`} className="skeleton h-64" />
+              ),
+            )}
         </div>
       )}
 

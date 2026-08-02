@@ -7,6 +7,8 @@ import { useAuth } from "../lib/auth";
 const ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
 const ACCEPTED_TYPES = new Set(ACCEPT.split(","));
 const MAX_FILES = 5;
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const UPLOAD_CONCURRENCY = 2;
 
 /** A picked screenshot and its object-URL preview (plays animated GIFs natively). */
 interface Shot {
@@ -23,8 +25,9 @@ export const SubmitProofPage = (): JSX.Element => {
   const [shots, setShots] = useState<Shot[]>([]);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
-  // Index of the shot currently uploading (sequential); null when idle.
-  const [uploading, setUploading] = useState<number | null>(null);
+  const [uploadedIndexes, setUploadedIndexes] = useState<Set<number>>(
+    () => new Set(),
+  );
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -33,12 +36,27 @@ export const SubmitProofPage = (): JSX.Element => {
 
   useEffect(() => {
     if (!slug) return;
+    let active = true;
     document.title = "Upload proof — Money Marathon";
-    api.offer(slug).then(setOffer).catch(() => setError("Offer not found"));
+    api
+      .offer(slug)
+      .then((data) => {
+        if (active) setOffer(data);
+      })
+      .catch(() => {
+        if (active) setError("Offer not found");
+      });
+    return () => {
+      active = false;
+    };
   }, [slug]);
 
   // Revoke every outstanding object URL on unmount.
-  useEffect(() => () => shotsRef.current.forEach((shot) => URL.revokeObjectURL(shot.url)), []);
+  useEffect(
+    () => () =>
+      shotsRef.current.forEach((shot) => URL.revokeObjectURL(shot.url)),
+    [],
+  );
 
   if (!auth) return <AppPrompt />;
 
@@ -47,6 +65,10 @@ export const SubmitProofPage = (): JSX.Element => {
     if (incoming.length === 0) return;
     if (incoming.some((file) => !ACCEPTED_TYPES.has(file.type))) {
       setError("Use PNG, JPEG, WebP or GIF screenshots.");
+      return;
+    }
+    if (incoming.some((file) => file.size > MAX_FILE_BYTES)) {
+      setError("Each screenshot must be 5 MB or smaller.");
       return;
     }
     const room = MAX_FILES - shots.length;
@@ -58,7 +80,9 @@ export const SubmitProofPage = (): JSX.Element => {
     }
     setShots((current) => [
       ...current,
-      ...incoming.slice(0, room).map((file) => ({ file, url: URL.createObjectURL(file) })),
+      ...incoming
+        .slice(0, room)
+        .map((file) => ({ file, url: URL.createObjectURL(file) })),
     ]);
   };
 
@@ -72,15 +96,27 @@ export const SubmitProofPage = (): JSX.Element => {
     if (shots.length === 0 || !offer || busy) return;
     setBusy(true);
     setError(null);
+    setUploadedIndexes(new Set());
     try {
-      // ponytail: sequential uploads — clear per-file state, no concurrency bugs
-      const screenshotUrls: string[] = [];
-      for (let index = 0; index < shots.length; index += 1) {
-        setUploading(index);
-        const { url } = await api.upload(shots[index].file);
-        screenshotUrls.push(url);
-      }
-      setUploading(null);
+      // Two workers significantly reduce multi-image wait time without opening
+      // five simultaneous mobile uploads or overwhelming a small API instance.
+      const screenshotUrls = new Array<string>(shots.length);
+      let cursor = 0;
+      const worker = async (): Promise<void> => {
+        while (cursor < shots.length) {
+          const index = cursor;
+          cursor += 1;
+          const { url } = await api.upload(shots[index].file);
+          screenshotUrls[index] = url;
+          setUploadedIndexes((current) => new Set(current).add(index));
+        }
+      };
+      await Promise.all(
+        Array.from(
+          { length: Math.min(UPLOAD_CONCURRENCY, shots.length) },
+          worker,
+        ),
+      );
       await api.submitProof({
         offerId: offer.id,
         screenshotUrls,
@@ -88,15 +124,20 @@ export const SubmitProofPage = (): JSX.Element => {
       });
       navigate("/submissions");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not submit your proof");
+      setError(
+        err instanceof Error ? err.message : "Could not submit your proof",
+      );
       setBusy(false);
-      setUploading(null);
+      setUploadedIndexes(new Set());
     }
   };
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-20 pt-4">
-      <Link to={offer ? `/offers/${offer.slug}` : "/"} className="text-sm font-semibold text-ink-soft">
+      <Link
+        to={offer ? `/offers/${offer.slug}` : "/"}
+        className="text-sm font-semibold text-ink-soft"
+      >
         ← Back to offer
       </Link>
 
@@ -142,7 +183,9 @@ export const SubmitProofPage = (): JSX.Element => {
             pick(event.dataTransfer.files);
           }}
           className={`mt-5 cursor-pointer overflow-hidden rounded-card border-2 border-dashed p-4 text-center transition-colors ${
-            dragging ? "border-accent bg-accent/10" : "border-accent/40 bg-surface/60"
+            dragging
+              ? "border-accent bg-accent/10"
+              : "border-accent/40 bg-surface/60"
           }`}
         >
           <div className="py-8">
@@ -160,8 +203,12 @@ export const SubmitProofPage = (): JSX.Element => {
             >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
             </svg>
-            <p className="mt-3 font-display text-sm font-bold">Tap or drop your screenshots</p>
-            <p className="mt-1 text-xs text-ink-muted">PNG, JPEG, WebP or GIF · up to {MAX_FILES}</p>
+            <p className="mt-3 font-display text-sm font-bold">
+              Tap or drop your screenshots
+            </p>
+            <p className="mt-1 text-xs text-ink-muted">
+              PNG, JPEG, WebP or GIF · up to {MAX_FILES}
+            </p>
           </div>
         </div>
       ) : (
@@ -178,7 +225,9 @@ export const SubmitProofPage = (): JSX.Element => {
             pick(event.dataTransfer.files);
           }}
           className={`mt-5 grid grid-cols-3 gap-3 rounded-card border-2 border-dashed p-3 transition-colors ${
-            dragging ? "border-accent bg-accent/10" : "border-accent/40 bg-surface/60"
+            dragging
+              ? "border-accent bg-accent/10"
+              : "border-accent/40 bg-surface/60"
           }`}
         >
           {shots.map((shot, index) => (
@@ -191,22 +240,21 @@ export const SubmitProofPage = (): JSX.Element => {
                 alt={`Proof screenshot ${index + 1}`}
                 className="h-full w-full object-contain"
               />
-              {uploading !== null && (
-                <div
-                  className={`absolute inset-0 flex items-center justify-center bg-bgbottom/60 ${
-                    index > uploading ? "opacity-40" : ""
-                  }`}
-                >
-                  {index < uploading ? (
-                    <span className="text-lg font-bold text-accent" aria-label="Uploaded">
+              {busy && (
+                <div className="absolute inset-0 flex items-center justify-center bg-bgbottom/60">
+                  {uploadedIndexes.has(index) ? (
+                    <span
+                      className="text-lg font-bold text-accent"
+                      aria-label="Uploaded"
+                    >
                       ✓
                     </span>
-                  ) : index === uploading ? (
+                  ) : (
                     <span
                       aria-label="Uploading"
                       className="h-5 w-5 animate-spin rounded-full border-2 border-accent/30 border-t-accent"
                     />
-                  ) : null}
+                  )}
                 </div>
               )}
               {!busy && (
@@ -250,8 +298,8 @@ export const SubmitProofPage = (): JSX.Element => {
         disabled={shots.length === 0 || !offer || busy}
         className="btn-accent mt-5 w-full py-3.5 text-sm tracking-wide"
       >
-        {uploading !== null
-          ? `UPLOADING ${uploading + 1}/${shots.length}…`
+        {busy && uploadedIndexes.size < shots.length
+          ? `UPLOADING ${uploadedIndexes.size}/${shots.length}…`
           : busy
             ? "SUBMITTING…"
             : "SUBMIT PROOF"}
