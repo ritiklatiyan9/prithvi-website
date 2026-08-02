@@ -4,9 +4,9 @@
 
 @layer base {
   body {
-    /* App body text: Chakra Petch w500 on the Ludo-navy falloff. */
+    /* App body text: Chakra Petch w500 on the graphite falloff. */
     @apply font-display font-medium text-ink antialiased;
-    background: linear-gradient(180deg, #0c2e61 0%, #071a3d 100%) fixed #071a3d;
+    background: linear-gradient(180deg, #0a0e14 0%, #05070b 100%) fixed #05070b;
     min-height: 100vh;
   }
 
@@ -15,8 +15,8 @@
   }
 
   ::selection {
-    background: rgba(103, 214, 255, 0.22);
-    color: #f1f5f9;
+    background: rgba(36, 114, 196, 0.3);
+    color: #edeff2;
   }
 }
 
@@ -45,7 +45,7 @@
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
   }
-  /* The ONE gradient: cyan-to-blue CTA with deep navy ink + soft glow. */
+  /* The ONE gradient: deep-azure CTA with near-white ink + soft glow. */
   .btn-accent {
     @apply inline-flex items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-deep font-display font-semibold text-onaccent shadow-glow transition-transform active:scale-[0.97] disabled:opacity-50;
   }

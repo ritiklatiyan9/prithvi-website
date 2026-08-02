@@ -1,20 +1,21 @@
 import type { Config } from "tailwindcss";
 
 // Tokens mirror prithivi-app/lib/theme/app_colors.dart (design system v5):
-// Ludo navy base + ONE cyan-to-royal-blue accent gradient; coin gold for
-// coin glyphs only; flat semantic danger.
+// near-black graphite base + ONE deep-azure accent gradient; the blue lives in
+// the accent only, never in surfaces or body text. Coin gold for coin glyphs
+// only; flat semantic danger.
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        bgtop: "#0C2E61",
-        bgbottom: "#071A3D",
-        surface: { DEFAULT: "#0D2857", alt: "#123B72" },
-        hairline: "rgba(148,163,184,0.14)",
-        accent: { DEFAULT: "#67D6FF", deep: "#1689E8" },
-        onaccent: "#061A32",
-        ink: { DEFAULT: "#F1F5F9", soft: "#94A3B8", muted: "#64748B" },
+        bgtop: "#0A0E14",
+        bgbottom: "#05070B",
+        surface: { DEFAULT: "#0C1017", alt: "#141922" },
+        hairline: "rgba(160,166,174,0.14)",
+        accent: { DEFAULT: "#2472C4", deep: "#14539B" },
+        onaccent: "#F2F6FA",
+        ink: { DEFAULT: "#EDEFF2", soft: "#98A0AB", muted: "#6B727C" },
         coin: "#EAB308",
         danger: "#F87171",
       },
@@ -24,8 +25,8 @@ export default {
       },
       borderRadius: { card: "22px" },
       boxShadow: {
-        glow: "0 0 24px -2px rgba(103, 214, 255, 0.25)",
-        "glow-sm": "0 0 16px -4px rgba(103, 214, 255, 0.35)",
+        glow: "0 0 24px -2px rgba(36, 114, 196, 0.3)",
+        "glow-sm": "0 0 16px -4px rgba(36, 114, 196, 0.4)",
       },
     },
   },
