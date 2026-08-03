@@ -15,7 +15,7 @@
   }
 
   ::selection {
-    background: rgba(36, 114, 196, 0.3);
+    background: rgba(21, 138, 86, 0.3);
     color: #edeff2;
   }
 }
@@ -45,9 +45,9 @@
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
   }
-  /* The ONE gradient: deep-azure CTA with near-white ink + soft glow. */
+  /* The ONE gradient: deep-forest CTA with near-white ink + soft glow. */
   .btn-accent {
-    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-deep font-display font-semibold text-onaccent shadow-glow transition-transform active:scale-[0.97] disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-full bg-accent font-display font-semibold text-onaccent shadow-glow transition-transform active:scale-[0.97] disabled:opacity-50;
   }
   .btn-ghost {
     @apply inline-flex items-center justify-center rounded-full border border-hairline bg-surface-alt font-display font-semibold text-ink transition-transform active:scale-[0.97] disabled:opacity-50;
@@ -87,7 +87,7 @@
 
 .skeleton {
   @apply rounded-card border border-hairline bg-surface;
-  background-image: linear-gradient(90deg, transparent, rgba(103, 214, 255, 0.08), transparent);
+  background-image: linear-gradient(90deg, transparent, rgba(21, 138, 86, 0.08), transparent);
   background-size: 400px 100%;
   background-repeat: no-repeat;
   animation: shimmer 1.4s infinite;
