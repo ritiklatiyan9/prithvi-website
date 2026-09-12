@@ -43,7 +43,7 @@ export const OffersPage = (): JSX.Element => {
   };
 
   useEffect(() => {
-    document.title = "Reward Zone — Money Marathon";
+    document.title = "Hot Offers — Money Marathon";
     void api
       .categories()
       .then(setCategories)
@@ -123,24 +123,25 @@ export const OffersPage = (): JSX.Element => {
   }, [hasMore, loading, page, loadPage]);
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-20">
+    <div className="mx-auto w-full max-w-4xl px-4 pb-20 sm:px-6">
       {/* Heading — app's Hot Offers screen tone */}
       <header className="pb-4 pt-6">
-        <h1 className="font-display text-[28px] font-bold tracking-tight">
-          Hot Offers
+        <p className="mb-2 text-xs font-bold text-accent">Hot Offers</p>
+        <h1 className="font-display text-[30px] font-bold tracking-tight">
+          Your next little win.
         </h1>
         <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-          Complete an eligible task and upload proof — approved coins land in
-          your Money Marathon wallet.
+          Explore something new. Complete the steps and collect coins after approval.
         </p>
       </header>
 
       {/* Controls */}
-      <div className="sticky top-14 z-10 -mx-4 space-y-2.5 bg-bgtop/80 px-4 py-3 backdrop-blur">
+      <div className="sticky top-16 z-10 -mx-4 space-y-2.5 bg-bgtop/80 px-4 py-3 backdrop-blur">
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search offers…"
+          aria-label="Search offers"
+          placeholder="Find your next offer…"
           className="field"
         />
         <div className="flex items-center gap-2">
@@ -172,6 +173,7 @@ export const OffersPage = (): JSX.Element => {
             ))}
           </div>
           <select
+            aria-label="Sort offers"
             value={sort}
             onChange={(event) => setSort(event.target.value as SortOption)}
             className="shrink-0 rounded-full border border-hairline bg-surface-alt px-3 py-1.5 text-xs font-semibold text-ink-soft outline-none focus:border-accent"
@@ -205,7 +207,7 @@ export const OffersPage = (): JSX.Element => {
           </p>
         </div>
       ) : (
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           {offers.map((offer, index) => (
             <OfferCardTile key={offer.id} offer={offer} index={index} />
           ))}

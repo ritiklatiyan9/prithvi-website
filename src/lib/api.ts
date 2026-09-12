@@ -26,6 +26,10 @@ export interface OfferCard {
   isProduct: boolean;
   brandLogoUrl: string | null;
   featured: boolean;
+  /** True when the signed-in caller's proof for this offer is APPROVED. */
+  completed?: boolean;
+  /** SHOW | HIDE | SHOW_COMPLETED — HIDE offers never reach signed-in lists. */
+  completedBehavior?: "SHOW" | "HIDE" | "SHOW_COMPLETED";
   category: { id: string; slug: string; title: string };
 }
 
@@ -345,15 +349,25 @@ export const api = {
     if (params.category) query.set("category", params.category);
     if (params.search) query.set("search", params.search);
     if (params.sort) query.set("sort", params.sort);
-    return cached(`offers:${query}`, 30_000, async () => {
-      const result = await request<OfferCard[]>(`/hot-offers/offers?${query}`);
-      return { items: result.data, meta: result.meta! };
-    });
+    // Signed-in responses are personalized (completed offers hidden/flagged),
+    // so they must not share cache entries with the anonymous catalog.
+    // ponytail: keyed by signed-in yes/no, not user id — sessionStorage is per
+    // tab, so cross-user bleed needs a login switch inside one tab within TTL.
+    return cached(
+      `offers:${getSession() ? "u" : "a"}:${query}`,
+      30_000,
+      async () => {
+        const result = await request<OfferCard[]>(
+          `/hot-offers/offers?${query}`,
+        );
+        return { items: result.data, meta: result.meta! };
+      },
+    );
   },
 
   offer: async (slug: string): Promise<OfferDetails> =>
     cached(
-      `offer:${slug}`,
+      `offer:${getSession() ? "u" : "a"}:${slug}`,
       2 * 60_000,
       async () =>
         (await request<OfferDetails>(`/hot-offers/offers/${slug}`)).data,

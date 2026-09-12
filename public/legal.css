@@ -1,13 +1,14 @@
+@font-face { font-family: Manrope; src: url('/fonts/Manrope.ttf'); font-weight: 200 800; font-display: swap; }
 :root {
-  color-scheme: dark;
-  --bg: #081711;
-  --top: #0a2d20;
-  --card: #102a1c;
-  --line: rgba(132, 164, 145, 0.18);
-  --ink: #f1f5f9;
-  --soft: #a8b4c5;
-  --accent: #18a56b;
-  --deep: #0d5f42;
+  color-scheme: light;
+  --bg: #FFFEFC;
+  --top: #FFFEFC;
+  --card: #FFFFFF;
+  --line: #D6D1C9;
+  --ink: #242320;
+  --soft: #65615C;
+  --accent: #C7501B;
+  --deep: #A93D13;
 }
 
 * {
@@ -22,7 +23,7 @@ body {
   margin: 0;
   background: linear-gradient(180deg, var(--top), var(--bg)) fixed;
   color: var(--ink);
-  font: 16px/1.72 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font: 16px/1.72 Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 a {
@@ -34,7 +35,7 @@ header {
   top: 0;
   z-index: 3;
   border-bottom: 1px solid var(--line);
-  background: rgba(9, 31, 20, 0.9);
+  background: rgba(255, 254, 252, .94);
   backdrop-filter: blur(16px);
 }
 
@@ -113,7 +114,7 @@ li {
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(14, 42, 31, 0.82);
+  background: #FFFFFF;
 }
 
 ul,
@@ -127,7 +128,7 @@ ol {
   padding: 12px 20px;
   border-radius: 999px;
   background: var(--accent);
-  color: #06190f;
+  color: #FFFFFF;
   font-weight: 800;
   text-decoration: none;
 }

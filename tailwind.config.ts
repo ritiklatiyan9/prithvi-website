@@ -1,32 +1,29 @@
 import type { Config } from "tailwindcss";
 
-// Tokens mirror prithivi-app/lib/theme/app_colors.dart (design system v5):
-// near-black graphite base + ONE deep-forest accent gradient; the green lives in
-// the accent only, never in surfaces or body text. Coin gold for coin glyphs
-// only; flat semantic danger.
+// Shared warm light palette and bundled Manrope typography.
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        bgtop: "#0A0E14",
-        bgbottom: "#05070B",
-        surface: { DEFAULT: "#0C1017", alt: "#141922" },
-        hairline: "rgba(160,166,174,0.14)",
-        accent: { DEFAULT: "#158a56", deep: "#0d5e3d" },
+        bgtop: "#FFFEFC",
+        bgbottom: "#FAF9F7",
+        surface: { DEFAULT: "#FFFFFF", alt: "#F5F3EF" },
+        hairline: "#D6D1C9",
+        accent: { DEFAULT: "#C7501B", deep: "#A93D13" },
         onaccent: "#F2F6FA",
-        ink: { DEFAULT: "#EDEFF2", soft: "#98A0AB", muted: "#6B727C" },
+        ink: { DEFAULT: "#242320", soft: "#65615C", muted: "#77716A" },
         coin: "#EAB308",
-        danger: "#F87171",
+        danger: "#B83232",
       },
       fontFamily: {
-        display: ['"Chakra Petch"', "system-ui", "sans-serif"],
-        numbers: ["Orbitron", "system-ui", "sans-serif"],
+        display: ['"Manrope"', "system-ui", "sans-serif"],
+        numbers: ["Manrope", "system-ui", "sans-serif"],
       },
-      borderRadius: { card: "22px" },
+      borderRadius: { card: "18px" },
       boxShadow: {
-        glow: "0 0 24px -2px rgba(21, 138, 86, 0.32)",
-        "glow-sm": "0 0 16px -4px rgba(21, 138, 86, 0.4)",
+        glow: "0 4px 12px rgba(80, 49, 24, 0.08)",
+        "glow-sm": "0 2px 8px rgba(80, 49, 24, 0.04)",
       },
     },
   },

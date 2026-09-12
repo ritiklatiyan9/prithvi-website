@@ -1,7 +1,8 @@
+import { OfferArtwork } from "./OfferArtwork";
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { api, type OfferCard } from "../lib/api";
-import { CoinIcon, FlameIcon } from "./ui";
+import { CoinIcon } from "./ui";
 
 /** 2-col grid card: art (crop-safe), 2-line title, coin row, START pill. */
 const OfferCardTileComponent = ({
@@ -10,7 +11,10 @@ const OfferCardTileComponent = ({
 }: {
   offer: OfferCard;
   index: number;
-}): JSX.Element => (
+}): JSX.Element => {
+  const showAsCompleted =
+    offer.completed === true && offer.completedBehavior === "SHOW_COMPLETED";
+  return (
   <Link
     to={`/offers/${offer.slug}`}
     onClick={() => api.track("CLICK", { offerId: offer.id })}
@@ -22,24 +26,19 @@ const OfferCardTileComponent = ({
     style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
   >
     {/* Art — fixed ratio so any CMS image crops safely */}
-    <div className="relative aspect-[4/3] overflow-hidden bg-surface-alt">
-      {(offer.thumbnailUrl ?? offer.logoUrl) ? (
-        <img
-          src={offer.thumbnailUrl ?? offer.logoUrl ?? ""}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full object-cover transition-transform duration-300 group-active:scale-105"
-        />
-      ) : (
-        <div className="flex h-full items-center justify-center text-accent/60">
-          <FlameIcon size={36} />
-        </div>
-      )}
-      {offer.featured && (
-        <span className="chip absolute left-2 top-2 bg-gradient-to-br from-accent to-accent-deep text-[10px] text-onaccent">
-          FEATURED
+    <div className="relative aspect-[3/2] overflow-hidden bg-surface-alt">
+      <OfferArtwork sources={[offer.thumbnailUrl, offer.logoUrl]} title={offer.title}
+        className="transition-transform duration-300 group-hover:scale-[1.025]" />
+      {showAsCompleted ? (
+        <span className="chip absolute left-2 top-2 bg-surface-alt/90 text-[10px] text-accent">
+          Completed
         </span>
+      ) : (
+        offer.featured && (
+          <span className="chip absolute left-2 top-2 bg-gradient-to-br from-accent to-accent-deep text-[10px] text-onaccent">
+            Featured
+          </span>
+        )
       )}
     </div>
 
@@ -47,7 +46,7 @@ const OfferCardTileComponent = ({
       <h3 className="line-clamp-2 font-display text-sm font-bold leading-snug">
         {offer.title}
       </h3>
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         <CoinIcon size={15} />
         <span className="font-numbers text-sm font-bold text-accent">
           +{offer.rewardLabel ?? offer.rewardAmount}
@@ -58,12 +57,19 @@ const OfferCardTileComponent = ({
           </span>
         )}
       </div>
-      <span className="btn-accent mt-auto w-full py-2 text-xs tracking-wider">
-        START
-      </span>
+      {showAsCompleted ? (
+        <span className="mt-auto w-full rounded-full bg-surface-alt py-2 text-center text-xs font-bold tracking-normal text-ink-muted">
+          Completed
+        </span>
+      ) : (
+        <span className="btn-accent mt-auto w-full py-2 text-xs tracking-normal">
+          Explore offer ↗
+        </span>
+      )}
     </div>
   </Link>
-);
+  );
+};
 
 // Existing offer objects remain referentially stable while the page toggles
 // loading/error state, so memo prevents every visible card reconciling again.

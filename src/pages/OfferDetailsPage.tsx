@@ -1,7 +1,8 @@
+import { OfferArtwork } from "../components/OfferArtwork";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, type OfferDetails, type Submission } from "../lib/api";
-import { CoinIcon, FlameIcon, StatusChip } from "../components/ui";
+import { CoinIcon, StatusChip } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import {
   isEmbedded,
@@ -160,22 +161,12 @@ export const OfferDetailsPage = (): JSX.Element => {
       </Link>
 
       {/* Hero art */}
-      <div className="glass-card relative mt-3 h-44 overflow-hidden animate-float-up">
-        {(offer.bannerUrl ?? offer.thumbnailUrl) ? (
-          <img
-            src={offer.bannerUrl ?? offer.thumbnailUrl ?? ""}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-surface-alt text-accent/60">
-            <FlameIcon size={44} />
-          </div>
-        )}
+      <div className="glass-card relative mt-3 h-52 overflow-hidden animate-float-up">
+        <OfferArtwork sources={[offer.bannerUrl, offer.thumbnailUrl, offer.logoUrl]} title={offer.title} />
       </div>
 
       {/* Identity + reward */}
-      <div className="glass-card relative z-10 -mt-7 mx-3 p-4 animate-float-up">
+      <div className="glass-card relative z-10 -mt-5 mx-2 p-4 animate-float-up">
         <div className="flex items-center gap-3">
           {offer.logoUrl && (
             <img
@@ -185,7 +176,7 @@ export const OfferDetailsPage = (): JSX.Element => {
             />
           )}
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-lg font-bold leading-snug">
+            <h1 className="font-display text-xl font-extrabold leading-snug">
               {offer.title}
             </h1>
             <p className="truncate text-xs text-ink-soft">
@@ -379,7 +370,7 @@ export const OfferDetailsPage = (): JSX.Element => {
             <>
               <Link
                 to={`/submit/${offer.slug}`}
-                className="btn-accent block w-full py-3.5 text-center text-sm tracking-wide"
+                className="btn-accent block w-full py-3.5 text-center text-sm tracking-normal"
               >
                 UPDATE YOUR PROOF
               </Link>
@@ -396,28 +387,28 @@ export const OfferDetailsPage = (): JSX.Element => {
           ) : (
             <>
               {install === "waiting" ? (
-                <div className="btn-accent w-full animate-pulse py-3.5 text-sm tracking-wide">
+                <div className="btn-accent w-full animate-pulse py-3.5 text-sm tracking-normal">
                   <span
                     aria-hidden
                     className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-onaccent/30 border-t-onaccent"
                   />
-                  OPENING GOOGLE PLAY...
+                  Opening Google Play…
                 </div>
               ) : install === "storeOpened" ? (
                 // Direct action: go to the uploader. In-page scrolling is not
                 // reliable when the proof card has not rendered yet.
                 <Link
                   to={`/submit/${offer.slug}`}
-                  className="btn-accent block w-full py-3.5 text-center text-sm tracking-wide"
+                  className="btn-accent block w-full py-3.5 text-center text-sm tracking-normal"
                 >
-                  UPLOAD YOUR PROOF
+                  Upload your proof
                 </Link>
               ) : (
                 <button
                   onClick={download}
-                  className="btn-accent w-full py-3.5 text-sm tracking-wide"
+                  className="btn-accent w-full py-3.5 text-sm tracking-normal"
                 >
-                  DOWNLOAD ON GOOGLE PLAY
+                  Get it on Google Play
                 </button>
               )}
               <p className="mt-1.5 text-center text-[11px] text-ink-muted">

@@ -2,11 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/Manrope.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
+  :root { color-scheme: light; }
+  h1, h2, h3 { letter-spacing: -.035em; }
+  button, a, input, select { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 2px solid #C7501B; outline-offset: 3px; }
+
   body {
-    /* App body text: Chakra Petch w500 on the graphite falloff. */
+
     @apply font-display font-medium text-ink antialiased;
-    background: linear-gradient(180deg, #0a0e14 0%, #05070b 100%) fixed #05070b;
+    background: #fffefc;
     min-height: 100vh;
   }
 
@@ -15,18 +28,12 @@
   }
 
   ::selection {
-    background: rgba(21, 138, 86, 0.3);
-    color: #edeff2;
+    background: rgba(199, 80, 27, 0.16);
+    color: #242320;
   }
 }
 
-.hero-grid {
-  background-image:
-    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: center;
-}
+.hero-grid { background: linear-gradient(135deg, #fffaf4, #fffefc 65%); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -38,19 +45,19 @@
 }
 
 @layer components {
-  /* Card v4: 22px glass + hairline border (GlowCard). */
+
   .glass-card {
-    @apply rounded-card border border-hairline bg-surface/85 backdrop-blur;
+    @apply rounded-card border border-hairline bg-surface;
   }
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
   }
-  /* The ONE gradient: deep-forest CTA with near-white ink + soft glow. */
+
   .btn-accent {
-    @apply inline-flex items-center justify-center rounded-full bg-accent font-display font-semibold text-onaccent shadow-glow transition-transform active:scale-[0.97] disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-xl bg-accent font-display font-semibold text-onaccent shadow-glow transition-transform active:scale-[0.97] disabled:opacity-50;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center rounded-full border border-hairline bg-surface-alt font-display font-semibold text-ink transition-transform active:scale-[0.97] disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-xl border border-hairline bg-surface-alt font-display font-semibold text-ink transition-transform active:scale-[0.97] disabled:opacity-50;
   }
   .field {
     @apply w-full rounded-2xl border border-hairline bg-surface-alt px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent;
@@ -87,8 +94,18 @@
 
 .skeleton {
   @apply rounded-card border border-hairline bg-surface;
-  background-image: linear-gradient(90deg, transparent, rgba(21, 138, 86, 0.08), transparent);
+  background-image: linear-gradient(90deg, transparent, rgba(199, 80, 27, 0.06), transparent);
   background-size: 400px 100%;
   background-repeat: no-repeat;
   animation: shimmer 1.4s infinite;
+}
+
+.offer-card { transition: border-color .18s, box-shadow .18s, transform .18s; }
+@media (hover: hover) {
+  .offer-card:hover { border-color: #b9aea0; box-shadow: 0 6px 20px #5b43200c; transform: translateY(-2px); }
+}
+.btn-accent, .btn-ghost { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) {
+  .offer-card { transition: none; }
+  .offer-card:hover { transform: none; }
 }

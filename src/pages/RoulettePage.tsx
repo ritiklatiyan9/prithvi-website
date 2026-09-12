@@ -3,17 +3,17 @@ import { api, type RouletteBetType, type RouletteConfig, type RoulettePlayResult
 import { useAuth } from "../lib/auth";
 import { AppPrompt } from "../components/ui";
 
-// Casino palette — scoped to this page, independent of the site's green theme.
+// Light page surfaces; roulette numbers retain their familiar game colors.
 const C = {
-  bg: "#090909",
-  bg2: "#15100F",
+  bg: "#FFFEFC",
+  bg2: "#FFFFFF",
   red: "#A20D13",
   redDeep: "#58070A",
   gold: "#D6A43B",
-  goldLight: "#F2D084",
+  goldLight: "#A54A1E",
   green: "#087A55",
   white: "#F8F1E5",
-  muted: "#B8AA98",
+  muted: "#71695F",
 };
 
 const reducedMotion = (): boolean =>
@@ -291,7 +291,7 @@ export const RoulettePage = (): JSX.Element => {
       onClick={onClick}
       disabled={disabled || spinning}
       style={{
-        borderColor: active ? C.goldLight : "rgba(214,164,59,0.3)",
+        borderColor: active ? C.goldLight : "#D6D1C9",
         background: active ? C.gold : "transparent",
         color: active ? "#1a1200" : C.goldLight,
       }}
@@ -305,7 +305,7 @@ export const RoulettePage = (): JSX.Element => {
     n === 0 ? C.green : config.redNumbers.includes(n) ? C.red : "#161616";
 
   return (
-    <div style={{ background: C.bg, color: C.white }} className="min-h-screen">
+    <div style={{ background: C.bg, color: "#242320" }} className="min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         {/* header */}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -316,15 +316,15 @@ export const RoulettePage = (): JSX.Element => {
             <p className="text-sm" style={{ color: C.muted }}>{config.subtitle}</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full border px-3 py-1.5 text-sm font-semibold" style={{ borderColor: "rgba(214,164,59,0.3)", color: C.goldLight }}>
+            <span className="rounded-full border px-3 py-1.5 text-sm font-semibold" style={{ borderColor: "#D6D1C9", color: C.goldLight }}>
               Balance: {st.walletBalance.toLocaleString()} coins
             </span>
             {config.status.freeGamesEnabled && (
-              <span className="rounded-full border px-3 py-1.5 text-sm font-semibold" style={{ borderColor: C.green, color: "#7fe9c0" }}>
+              <span className="rounded-full border px-3 py-1.5 text-sm font-semibold" style={{ borderColor: C.green, color: C.green }}>
                 {st.freeGamesRemaining} free
               </span>
             )}
-            <button type="button" onClick={sound.toggle} title={sound.muted ? "Unmute" : "Mute"} className="rounded-full border px-3 py-1.5 text-sm" style={{ borderColor: "rgba(214,164,59,0.3)", color: C.goldLight }}>
+            <button type="button" onClick={sound.toggle} title={sound.muted ? "Unmute" : "Mute"} className="rounded-full border px-3 py-1.5 text-sm" style={{ borderColor: "#D6D1C9", color: C.goldLight }}>
               {sound.muted ? "🔇" : "🔊"}
             </button>
           </div>
@@ -338,7 +338,7 @@ export const RoulettePage = (): JSX.Element => {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           {/* wheel + recent */}
-          <div className="flex flex-col items-center gap-4 rounded-2xl border p-5" style={{ borderColor: "rgba(214,164,59,0.2)", background: C.bg2 }}>
+          <div className="flex flex-col items-center gap-4 rounded-2xl border p-5" style={{ borderColor: "#D6D1C9", background: C.bg2 }}>
             <Wheel
               sequence={config.wheelSequence}
               redNumbers={config.redNumbers}
@@ -361,20 +361,20 @@ export const RoulettePage = (): JSX.Element => {
           </div>
 
           {/* betting controls */}
-          <div className="rounded-2xl border p-5" style={{ borderColor: "rgba(214,164,59,0.2)", background: C.bg2 }}>
+          <div className="rounded-2xl border p-5" style={{ borderColor: "#D6D1C9", background: C.bg2 }}>
             {/* even-money bets */}
             <div className="grid grid-cols-2 gap-2">
               {config.betTypesEnabled.red && (
-                <button type="button" disabled={spinning} onClick={() => selectBet("RED")} style={{ background: betType === "RED" ? C.red : C.redDeep, borderColor: betType === "RED" ? C.goldLight : "transparent" }} className="rounded-lg border-2 py-3 text-sm font-bold disabled:opacity-40">Red</button>
+                <button type="button" disabled={spinning} onClick={() => selectBet("RED")} style={{ color: C.white, background: betType === "RED" ? C.red : C.redDeep, borderColor: betType === "RED" ? C.goldLight : "transparent" }} className="rounded-lg border-2 py-3 text-sm font-bold disabled:opacity-40">Red</button>
               )}
               {config.betTypesEnabled.black && (
-                <button type="button" disabled={spinning} onClick={() => selectBet("BLACK")} style={{ background: "#161616", borderColor: betType === "BLACK" ? C.goldLight : "transparent" }} className="rounded-lg border-2 py-3 text-sm font-bold disabled:opacity-40">Black</button>
+                <button type="button" disabled={spinning} onClick={() => selectBet("BLACK")} style={{ color: C.white, background: "#161616", borderColor: betType === "BLACK" ? C.goldLight : "transparent" }} className="rounded-lg border-2 py-3 text-sm font-bold disabled:opacity-40">Black</button>
               )}
               {config.betTypesEnabled.odd && (
-                <button type="button" disabled={spinning} onClick={() => selectBet("ODD")} style={{ borderColor: betType === "ODD" ? C.goldLight : "rgba(214,164,59,0.3)", color: C.goldLight }} className="rounded-lg border-2 py-3 text-sm font-bold disabled:opacity-40">Odd</button>
+                <button type="button" disabled={spinning} onClick={() => selectBet("ODD")} style={{ borderColor: betType === "ODD" ? C.goldLight : "#D6D1C9", color: C.goldLight }} className="rounded-lg border-2 py-3 text-sm font-bold disabled:opacity-40">Odd</button>
               )}
               {config.betTypesEnabled.even && (
-                <button type="button" disabled={spinning} onClick={() => selectBet("EVEN")} style={{ borderColor: betType === "EVEN" ? C.goldLight : "rgba(214,164,59,0.3)", color: C.goldLight }} className="rounded-lg border-2 py-3 text-sm font-bold disabled:opacity-40">Even</button>
+                <button type="button" disabled={spinning} onClick={() => selectBet("EVEN")} style={{ borderColor: betType === "EVEN" ? C.goldLight : "#D6D1C9", color: C.goldLight }} className="rounded-lg border-2 py-3 text-sm font-bold disabled:opacity-40">Even</button>
               )}
             </div>
 
@@ -407,20 +407,20 @@ export const RoulettePage = (): JSX.Element => {
             )}
 
             {/* amount + free toggle */}
-            <div className="mt-4 rounded-xl border p-3" style={{ borderColor: "rgba(214,164,59,0.2)" }}>
+            <div className="mt-4 rounded-xl border p-3" style={{ borderColor: "#D6D1C9" }}>
               {config.status.freeGamesEnabled && st.freeGamesRemaining > 0 && (
-                <label className="mb-3 flex items-center gap-2 text-sm font-semibold" style={{ color: "#7fe9c0" }}>
+                <label className="mb-3 flex items-center gap-2 text-sm font-semibold" style={{ color: C.green }}>
                   <input type="checkbox" checked={useFree} onChange={(e) => setUseFree(e.target.checked)} disabled={spinning} />
                   Use a free spin ({st.freeGamesRemaining} left · stake {config.status.freeGameStake})
                 </label>
               )}
               <div className={`flex items-center justify-between gap-2 ${useFree ? "opacity-40" : ""}`}>
-                <button type="button" disabled={useFree || spinning} onClick={() => setAmount((a) => Math.max(config.minBet, a - config.betStep))} className="h-9 w-9 rounded-lg border text-lg font-bold" style={{ borderColor: "rgba(214,164,59,0.3)", color: C.goldLight }}>−</button>
+                <button type="button" disabled={useFree || spinning} onClick={() => setAmount((a) => Math.max(config.minBet, a - config.betStep))} className="h-9 w-9 rounded-lg border text-lg font-bold" style={{ borderColor: "#D6D1C9", color: C.goldLight }}>−</button>
                 <div className="text-center">
                   <p className="text-lg font-bold tabular-nums" style={{ color: C.goldLight }}>{useFree ? config.status.freeGameStake : amount}</p>
                   <p className="text-[10px]" style={{ color: C.muted }}>coins</p>
                 </div>
-                <button type="button" disabled={useFree || spinning} onClick={() => setAmount((a) => Math.min(config.maxBet, a + config.betStep))} className="h-9 w-9 rounded-lg border text-lg font-bold" style={{ borderColor: "rgba(214,164,59,0.3)", color: C.goldLight }}>＋</button>
+                <button type="button" disabled={useFree || spinning} onClick={() => setAmount((a) => Math.min(config.maxBet, a + config.betStep))} className="h-9 w-9 rounded-lg border text-lg font-bold" style={{ borderColor: "#D6D1C9", color: C.goldLight }}>＋</button>
               </div>
               {!useFree && (
                 <div className="mt-3 flex flex-wrap justify-center gap-1.5">
@@ -447,8 +447,8 @@ export const RoulettePage = (): JSX.Element => {
                 onClick={() => void spin()}
                 disabled={!canSpin}
                 style={{
-                  background: canSpin ? `linear-gradient(180deg, ${C.gold}, ${C.red})` : "#2a2320",
-                  color: canSpin ? "#1a1200" : C.muted,
+                  background: canSpin ? "#C7501B" : "#E9E5DE",
+                  color: canSpin ? "#FFFFFF" : C.muted,
                 }}
                 className="w-full rounded-xl py-4 text-lg font-extrabold uppercase tracking-wide shadow-lg transition-transform active:scale-[0.98] disabled:cursor-not-allowed"
               >
@@ -462,7 +462,7 @@ export const RoulettePage = (): JSX.Element => {
         </div>
 
         {/* rules */}
-        <div className="mt-6 rounded-2xl border p-5 text-sm" style={{ borderColor: "rgba(214,164,59,0.2)", color: C.muted }}>
+        <div className="mt-6 rounded-2xl border p-5 text-sm" style={{ borderColor: "#D6D1C9", color: C.muted }}>
           <p className="mb-2 font-bold" style={{ color: C.goldLight }}>How to play</p>
           <p>{config.instructions}</p>
           <p className="mt-2">
@@ -477,7 +477,7 @@ export const RoulettePage = (): JSX.Element => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setShowModal(false)}>
           <div
             className="w-full max-w-sm rounded-2xl border p-6 text-center"
-            style={{ borderColor: result.won ? C.goldLight : "rgba(214,164,59,0.3)", background: C.bg2, boxShadow: result.won ? `0 0 40px ${C.gold}55` : "none" }}
+            style={{ borderColor: result.won ? C.goldLight : "#D6D1C9", background: C.bg2, boxShadow: result.won ? `0 0 40px ${C.gold}55` : "none" }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-2xl font-black" style={{ background: numberColour(result.winningNumber), color: C.white }}>
@@ -493,7 +493,7 @@ export const RoulettePage = (): JSX.Element => {
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              style={{ background: `linear-gradient(180deg, ${C.gold}, ${C.red})`, color: "#1a1200" }}
+              style={{ background: "#C7501B", color: "#FFFFFF" }}
               className="mt-5 w-full rounded-xl py-3 font-bold"
             >
               Continue

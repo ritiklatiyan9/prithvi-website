@@ -90,13 +90,13 @@ const Header = (): JSX.Element => {
   const auth = useAuth();
   return (
     <header className="sticky top-0 z-30 border-b border-hairline bg-bgtop/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/30 bg-accent/10 text-accent shadow-glow-sm">
+          <span className="flex h-9 w-9 max-[380px]:hidden items-center justify-center rounded-xl border border-accent/30 bg-accent/10 text-accent shadow-glow-sm">
             <FlameIcon />
           </span>
-          <span className="font-display text-lg font-bold tracking-tight sm:text-xl">
-            Money <span className="text-accent">Marathon</span>
+          <span className="font-display text-sm font-extrabold tracking-tight sm:text-xl">
+            Money <span className="ml-1 text-accent">Marathon</span>
           </span>
         </Link>
         <nav
@@ -124,6 +124,7 @@ const Header = (): JSX.Element => {
         </nav>
         <Link
           to="/submissions"
+          aria-label="My proofs"
           className="ml-auto flex items-center gap-1.5 rounded-full border border-hairline bg-surface-alt px-3.5 py-2 text-xs font-semibold text-ink-soft transition-transform active:scale-[0.97] sm:ml-3"
         >
           <svg
@@ -138,7 +139,7 @@ const Header = (): JSX.Element => {
           >
             <path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" />
           </svg>
-          My proofs
+          <span className="max-[380px]:hidden">Proofs</span>
           {auth && <span className="h-1.5 w-1.5 rounded-full bg-accent" />}
         </Link>
         {/* Standalone browser only — the embedded app WebView is left untouched. */}
@@ -165,7 +166,7 @@ const Header = (): JSX.Element => {
             </div>
           ) : (
             <GoogleSignInButton
-              className="btn-ghost ml-3 px-3.5 py-2 text-xs"
+              className="btn-ghost ml-1 shrink-0 px-3 py-2 text-xs"
               label="Sign in"
             />
           ))}
