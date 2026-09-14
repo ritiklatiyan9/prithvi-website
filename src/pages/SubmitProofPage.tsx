@@ -4,7 +4,7 @@ import { api, type OfferDetails } from "../lib/api";
 import { AppPrompt, CoinIcon } from "../components/ui";
 import { useAuth } from "../lib/auth";
 
-const ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
+const ACCEPT = "image/png,image/jpeg,image/webp";
 const ACCEPTED_TYPES = new Set(ACCEPT.split(","));
 const MAX_FILES = 5;
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -64,7 +64,7 @@ export const SubmitProofPage = (): JSX.Element => {
     const incoming = Array.from(picked ?? []);
     if (incoming.length === 0) return;
     if (incoming.some((file) => !ACCEPTED_TYPES.has(file.type))) {
-      setError("Use PNG, JPEG, WebP or GIF screenshots.");
+      setError("Use PNG, JPEG or WebP screenshots.");
       return;
     }
     if (incoming.some((file) => file.size > MAX_FILE_BYTES)) {

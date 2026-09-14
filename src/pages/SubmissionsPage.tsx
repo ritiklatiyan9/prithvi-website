@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api, type PageMeta, type Submission } from "../lib/api";
 import { AppPrompt, CoinIcon, StatusChip } from "../components/ui";
 import { useAuth } from "../lib/auth";
+import { mediaUrl } from "../lib/media";
 
 const SubmissionRow = ({
   submission,
@@ -28,7 +29,7 @@ const SubmissionRow = ({
     <div className="glass-card p-3.5 animate-float-up">
       <div className="flex gap-3">
         <img
-          src={submission.offerThumbnailUrl ?? submission.screenshotUrl}
+          src={mediaUrl(submission.offerThumbnailUrl ?? submission.screenshotUrl) ?? undefined}
           alt=""
           loading="lazy"
           className="h-14 w-14 shrink-0 rounded-2xl border border-hairline bg-surface-alt object-cover"

@@ -424,7 +424,10 @@ export const api = {
     const form = new FormData();
     form.append("file", file);
     return (
-      await request<{ url: string }>("/uploads", { method: "POST", body: form })
+      await request<{ url: string }>("/uploads?purpose=PROOF", {
+        method: "POST",
+        body: form,
+      })
     ).data;
   },
 

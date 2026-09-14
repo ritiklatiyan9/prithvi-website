@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, type OfferDetails, type Submission } from "../lib/api";
 import { CoinIcon, StatusChip } from "../components/ui";
 import { useAuth } from "../lib/auth";
+import { mediaUrl } from "../lib/media";
 import {
   isEmbedded,
   onInstallResult,
@@ -170,7 +171,7 @@ export const OfferDetailsPage = (): JSX.Element => {
         <div className="flex items-center gap-3">
           {offer.logoUrl && (
             <img
-              src={offer.logoUrl}
+              src={mediaUrl(offer.logoUrl) ?? undefined}
               alt=""
               className="h-12 w-12 rounded-2xl border border-hairline object-cover"
             />
@@ -192,7 +193,7 @@ export const OfferDetailsPage = (): JSX.Element => {
           <div className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full border border-hairline bg-surface-alt/80 py-1.5 pl-1.5 pr-3 backdrop-blur">
             {/* plain <img> keeps animated GIF logos playing */}
             <img
-              src={offer.brandLogoUrl}
+              src={mediaUrl(offer.brandLogoUrl) ?? undefined}
               alt=""
               className="h-6 w-6 shrink-0 rounded-full border border-hairline bg-surface object-contain p-0.5"
             />
