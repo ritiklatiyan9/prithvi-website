@@ -10,7 +10,7 @@
       ]
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "headers": [
         {
           "key": "X-Content-Type-Options",
@@ -45,7 +45,7 @@
       "destination": "https://prithivi-backend.onrender.com/uploads/:path*"
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "header",
@@ -56,7 +56,7 @@
       "destination": "/app.html"
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": "/web.html"
     }
   ]
