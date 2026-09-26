@@ -66,6 +66,15 @@ const HashScroller = (): null => {
   return null;
 };
 
+const GamesPage = lazy(() =>
+  import("./pages/GamesPage").then(({ GamesPage }) => ({ default: GamesPage })),
+);
+const GamePlayerPage = lazy(() =>
+  import("./pages/GamesPage").then(({ GamePlayerPage }) => ({
+    default: GamePlayerPage,
+  })),
+);
+
 const RoutedContent = (): JSX.Element => {
   const location = useLocation();
   return (
@@ -76,6 +85,8 @@ const RoutedContent = (): JSX.Element => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/rewards" element={<OffersPage />} />
           <Route path="/roulette" element={<RoulettePage />} />
+          <Route path="/games" element={<GamesPage />} />
+          <Route path="/games/play/:key" element={<GamePlayerPage />} />
           <Route path="/offers/:slug" element={<OfferDetailsPage />} />
           <Route path="/submit/:slug" element={<SubmitProofPage />} />
           <Route path="/submissions" element={<SubmissionsPage />} />
@@ -109,6 +120,11 @@ const Header = (): JSX.Element => {
           <Link to="/roulette" className="transition-colors hover:text-accent">
             Roulette
           </Link>
+          {!isEmbedded() && (
+            <Link to="/games" className="transition-colors hover:text-accent">
+              Games
+            </Link>
+          )}
           <Link
             to="/#how-it-works"
             className="transition-colors hover:text-accent"

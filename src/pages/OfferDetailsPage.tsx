@@ -107,20 +107,21 @@ export const OfferDetailsPage = (): JSX.Element => {
   const download = (): void => {
     if (!offer) return;
     api.track("DOWNLOAD", { offerId: offer.id });
-    const packageId = parsePackageId(offer.playStoreUrl);
-    if (embedded && packageId) {
-      // openStore is false when the bridge isn't injected — fall through to the redirect.
-      if (
-        openStore({
-          offerId: offer.id,
-          slug: offer.slug,
-          packageId,
-          url: offer.playStoreUrl,
-        })
-      ) {
-        setInstall("waiting");
-        return;
-      }
+    // Embedded: the app opens every link natively — a non-Play link would
+    // otherwise load inside the WebView. packageId "" = no install detection
+    // (the app treats unknown as installed and moves on to the proof step).
+    // openStore is false when the bridge isn't injected — fall through to the redirect.
+    if (
+      embedded &&
+      openStore({
+        offerId: offer.id,
+        slug: offer.slug,
+        packageId: parsePackageId(offer.playStoreUrl) ?? "",
+        url: offer.playStoreUrl,
+      })
+    ) {
+      setInstall("waiting");
+      return;
     }
     // keepalive on the tracking request lets it complete through the redirect.
     window.location.href = offer.playStoreUrl;
@@ -154,6 +155,8 @@ export const OfferDetailsPage = (): JSX.Element => {
   }
 
   const canSubmit = !submission || RESUBMITTABLE.has(submission.status);
+  // Admins may link any site (referral/tracking links), not just Google Play.
+  const onPlay = parsePackageId(offer.playStoreUrl) !== null;
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-32 pt-4">
@@ -381,7 +384,9 @@ export const OfferDetailsPage = (): JSX.Element => {
                   onClick={download}
                   className="mx-auto mt-1.5 block text-[11px] font-semibold text-ink-muted underline"
                 >
-                  Need the app again? Reinstall from Google Play
+                  {onPlay
+                    ? "Need the app again? Reinstall from Google Play"
+                    : "Need the link again? Open the offer"}
                 </button>
               )}
             </>
@@ -393,7 +398,7 @@ export const OfferDetailsPage = (): JSX.Element => {
                     aria-hidden
                     className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-onaccent/30 border-t-onaccent"
                   />
-                  Opening Google Play…
+                  {onPlay ? "Opening Google Play…" : "Opening the offer…"}
                 </div>
               ) : install === "storeOpened" ? (
                 // Direct action: go to the uploader. In-page scrolling is not
@@ -409,15 +414,19 @@ export const OfferDetailsPage = (): JSX.Element => {
                   onClick={download}
                   className="btn-accent w-full py-3.5 text-sm tracking-normal"
                 >
-                  Get it on Google Play
+                  {onPlay ? "Get it on Google Play" : "Open the offer"}
                 </button>
               )}
               <p className="mt-1.5 text-center text-[11px] text-ink-muted">
                 {install === "waiting"
-                  ? "Opening the official Play Store listing…"
+                  ? onPlay
+                    ? "Opening the official Play Store listing…"
+                    : "Opening the offer link…"
                   : install === "storeOpened"
                     ? "Complete the stated task, then submit a clear screenshot"
-                    : "Opens the official Play Store listing"}
+                    : onPlay
+                      ? "Opens the official Play Store listing"
+                      : "Opens the offer link"}
               </p>
             </>
           )}

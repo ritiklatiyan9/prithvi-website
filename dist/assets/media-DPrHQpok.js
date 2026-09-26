@@ -1,0 +1,1 @@
+import{e as r}from"./index-N39vfrfx.js";const a=n=>{if(!n)return null;try{const i=new URL(n,window.location.origin);return i.pathname.includes("/uploads/")?`${new URL(r,window.location.origin).origin}${i.pathname}${i.search}`:n}catch{return n}};export{a as m};

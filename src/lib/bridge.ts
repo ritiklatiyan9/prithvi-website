@@ -35,10 +35,11 @@ export const isEmbedded = (): boolean => {
   }
 };
 
-/** Same ?id= parse the app uses on the Play Store URL. */
+/** Same ?id= parse the app uses on the Play Store URL; null for any other link. */
 export const parsePackageId = (playStoreUrl: string): string | null => {
   try {
-    return new URL(playStoreUrl).searchParams.get("id");
+    const url = new URL(playStoreUrl);
+    return url.hostname === "play.google.com" ? url.searchParams.get("id") : null;
   } catch {
     return null;
   }
